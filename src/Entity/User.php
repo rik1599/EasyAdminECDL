@@ -11,6 +11,11 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class User implements UserInterface
 {
+    const ROLES = [
+        'ROLE_ADMIN' => 'ROLE_ADMIN',
+        'ROLE_STUDENT' => 'ROLE_STUDENT'
+    ];
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -33,6 +38,31 @@ class User implements UserInterface
      * @ORM\Column(type="string")
      */
     private $password;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $createdAt;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $updatedAt;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $lastLoginAt;
+
+    /**
+     * @ORM\Column(type="string", length=128)
+     */
+    private $firstName;
+
+    /**
+     * @ORM\Column(type="string", length=128)
+     */
+    private $lastName;
 
     public function getId(): ?int
     {
@@ -81,6 +111,24 @@ class User implements UserInterface
     }
 
     /**
+     * Return the main role of the user
+     */
+    public function getRole(): string
+    {
+        $roles = $this->getRoles();
+        return sizeof($roles) == 0 ? '' : $roles[0];
+    }
+
+    /**
+     * Set the main role of the user
+     * @param $role ROLE_ADMIN|ROLE_USER the user role string
+     */
+    public function setRole(string $role): self
+    {
+        return $this->setRoles([$role]);
+    }
+
+    /**
      * @see UserInterface
      */
     public function getPassword(): string
@@ -110,5 +158,65 @@ class User implements UserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
+    }
+
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeInterface $createdAt): self
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeInterface
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): self
+    {
+        $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function getLastLoginAt(): ?\DateTimeInterface
+    {
+        return $this->lastLoginAt;
+    }
+
+    public function setLastLoginAt(\DateTimeInterface $lastLoginAt): self
+    {
+        $this->lastLoginAt = $lastLoginAt;
+
+        return $this;
+    }
+
+    public function getFirstName(): ?string
+    {
+        return $this->firstName;
+    }
+
+    public function setFirstName(string $firstName): self
+    {
+        $this->firstName = $firstName;
+
+        return $this;
+    }
+
+    public function getLastName(): ?string
+    {
+        return $this->lastName;
+    }
+
+    public function setLastName(string $lastName): self
+    {
+        $this->lastName = $lastName;
+
+        return $this;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -14,7 +15,29 @@ class LoginController extends AbstractController
      */
     public function home()
     {
-        return $this->redirectToRoute('app_login');
+        /** @var \App\Entity\User $user */
+        if ($user = $this->getUser()) {
+            $role = $user->getRole();
+            $this->lastAccess($user);
+        } else {
+            $role = "ANONYMOUS";
+        }
+
+        switch ($role) {
+            case 'ROLE_ADMIN':
+                $redirect = $this->redirectToRoute('admin');
+                break;
+
+            case 'ROLE_STUDENT':
+                $redirect = $this->redirectToRoute('student');
+                break;
+            
+            default:
+                $redirect = $this->redirectToRoute('app_login');
+                break;
+        }
+
+        return $redirect;
     }
 
     /**
@@ -49,5 +72,12 @@ class LoginController extends AbstractController
     public function logout()
     {
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
+    }
+
+    private function lastAccess(User $user)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $user->setLastLoginAt(new \DateTime());
+        $em->flush();
     }
 }
