@@ -37,11 +37,11 @@ class UserCrudController extends AbstractCrudController
     {
         return [
             IdField::new('id')->hideOnForm(),
-            TextField::new('firstName'),
-            TextField::new('lastName'),
+            TextField::new('firstName', 'Nome'),
+            TextField::new('lastName', 'Cognome'),
             EmailField::new('email'),
             PasswordField::new('password')->onlyOnForms(),
-            ChoiceField::new('role')->setChoices(User::ROLES),
+            ChoiceField::new('role', 'Permessi')->setChoices(User::ROLES),
             DateTimeField::new('createdAt')->hideOnForm(),
             DateTimeField::new('updatedAt')->hideOnForm(),
             DateTimeField::new('lastLoginAt')->hideOnForm()
