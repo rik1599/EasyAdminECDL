@@ -25,16 +25,6 @@ class Certification
     private $name;
 
     /**
-     * @ORM\Column(type="boolean")
-     */
-    private $hasExpiry;
-
-    /**
-     * @ORM\Column(type="dateinterval", nullable=true)
-     */
-    private $expiryTimeInterval;
-
-    /**
      * @ORM\OneToMany(targetEntity=CertificationModule::class, mappedBy="certification", orphanRemoval=true, cascade={"persist", "remove"})
      */
     private $certificationModules;
@@ -57,30 +47,6 @@ class Certification
     public function setName(string $name): self
     {
         $this->name = $name;
-
-        return $this;
-    }
-
-    public function getHasExpiry(): ?bool
-    {
-        return $this->hasExpiry;
-    }
-
-    public function setHasExpiry(bool $hasExpiry): self
-    {
-        $this->hasExpiry = $hasExpiry;
-
-        return $this;
-    }
-
-    public function getExpiryTimeInterval(): ?\DateInterval
-    {
-        return $this->expiryTimeInterval;
-    }
-
-    public function setExpiryTimeInterval(?\DateInterval $expiryTimeInterval): self
-    {
-        $this->expiryTimeInterval = $expiryTimeInterval;
 
         return $this;
     }

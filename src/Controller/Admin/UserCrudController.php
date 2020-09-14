@@ -44,7 +44,7 @@ class UserCrudController extends AbstractCrudController
         yield TextField::new('lastName', 'Cognome');
         yield EmailField::new('email');
         yield PasswordField::new('password', 'Password')->onlyWhenCreating();
-        yield ChoiceField::new('role', 'Permessi')->setChoices(User::ROLES);
+        yield ChoiceField::new('role', 'Permessi')->setChoices(User::ROLES)->setRequired(true);
         yield DateTimeField::new('createdAt')->hideOnForm();
         yield DateTimeField::new('updatedAt')->hideOnForm();
         yield DateTimeField::new('lastLoginAt')->hideOnForm();

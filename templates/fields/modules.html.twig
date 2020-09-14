@@ -1,0 +1,35 @@
+{# @var ea \EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext #}
+{# @var field \EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto #}
+{# @var entity \EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto #}
+{% set entity = entity.Instance %}
+
+{% if ea.crud.currentAction == 'detail' %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Modulo</th>
+                <th scope="col">Syllabus</th>
+                <th scope="col">Obbligatorio</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for module in entity.CertificationModules %}
+            <tr>
+                <th scope="row">{{ loop.index }}</th>
+                <td>{{ module.Module.Nome }}</td>
+                <td>{{ module.Module.Syllabus }}</td>
+                <td>
+                    {% if module.IsMandatory %}
+                        <span class="badge badge-pill badge-success">SI</span>
+                    {% else %}
+                        <span class="badge badge-pill badge-danger">NO</span>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+	{{ field.formattedValue }}
+{% endif %}
