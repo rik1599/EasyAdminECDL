@@ -14,9 +14,20 @@ class UserSecurityService
         $this->passwordEncoder = $userPasswordEncoderInterface;
     }
 
-    public function setupUser(User $user): void
+    public function setupUserPassword(User $user, string $plainPassword): void
     {
-        $password = $this->passwordEncoder->encodePassword($user, $user->getPassword());
+        $password = $this->passwordEncoder->encodePassword($user, $plainPassword);
         $user->setPassword($password);
+        $this->lastUpdate($user);
+    }
+
+    public function lastUpdate(User $user)
+    {
+        $user->setUpdatedAt(new \DateTime());
+    }
+
+    public function lastAccess(User $user)
+    {
+        $user->setLastLoginAt(new \DateTime());
     }
 }

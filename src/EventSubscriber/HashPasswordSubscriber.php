@@ -21,7 +21,6 @@ class HashPasswordSubscriber implements EventSubscriberInterface
     {
         return [
             BeforeEntityPersistedEvent::class => ['onCreate'],
-            BeforeEntityUpdatedEvent::class => ['onUpdate']
         ];
     }
 
@@ -31,28 +30,10 @@ class HashPasswordSubscriber implements EventSubscriberInterface
         $entity = $beforeEntityPersistedEvent->getEntityInstance();
 
         if ($entity instanceof User) {
-            $this->updatePassword($entity);
+            $this->userSecurityService->setupUserPassword($entity, $entity->getPassword());
             $entity->setCreatedAt(new \DateTime());
         } else {
             return;
         }
-    }
-
-    public function onUpdate(BeforeEntityUpdatedEvent $beforeEntityUpdatedEvent)
-    {
-        /** @var User $entity */
-        $entity = $beforeEntityUpdatedEvent->getEntityInstance();
-
-        if ($entity instanceof User) {
-            $this->updatePassword($entity);
-        } else {
-            return;
-        }
-    }
-
-    private function updatePassword(?User $user)
-    {
-        $this->userSecurityService->setupUser($user);
-        $user->setUpdatedAt(new \DateTime());
     }
 }

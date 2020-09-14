@@ -37,3 +37,4 @@ security:
     access_control:
          - { path: ^/admin, roles: ROLE_ADMIN }
          - { path: ^/student, roles: ROLE_STUDENT }
+         - { path: ^/change-password, roles: IS_AUTHENTICATED_FULLY }

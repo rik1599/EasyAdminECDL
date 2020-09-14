@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Service\UserSecurityService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -10,6 +11,13 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class LoginController extends AbstractController
 {
+    /** @var UserSecurityService */
+    private $userSecurityService;
+
+    public function __construct(UserSecurityService $userSecurityService) {
+        $this->userSecurityService = $userSecurityService;
+    }
+
     /**
      * @Route("/", name="home")
      */
@@ -18,7 +26,8 @@ class LoginController extends AbstractController
         /** @var \App\Entity\User $user */
         if ($user = $this->getUser()) {
             $role = $user->getRole();
-            $this->lastAccess($user);
+            $this->userSecurityService->lastAccess($user);
+            $this->getDoctrine()->getManager()->flush();
         } else {
             $role = "ANONYMOUS";
         }
@@ -72,12 +81,5 @@ class LoginController extends AbstractController
     public function logout()
     {
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
-    }
-
-    private function lastAccess(User $user)
-    {
-        $em = $this->getDoctrine()->getManager();
-        $user->setLastLoginAt(new \DateTime());
-        $em->flush();
     }
 }

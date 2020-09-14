@@ -27,6 +27,6 @@ class StudentDashboardController extends AbstractDashboardController
     public function configureMenuItems(): iterable
     {
         yield MenuItem::linktoDashboard('Dashboard', 'fa fa-home');
-        // yield MenuItem::linkToCrud('The Label', 'icon class', EntityClass::class);
+        yield MenuItem::linktoRoute('Cambia password', 'fa fa-user', 'change_password');
     }
 }
