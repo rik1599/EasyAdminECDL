@@ -2,15 +2,15 @@
 
 namespace App\Entity;
 
-use App\Repository\ModuleRepository;
+use App\Repository\CertificationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass=ModuleRepository::class)
+ * @ORM\Entity(repositoryClass=CertificationRepository::class)
  */
-class Module
+class Certification
 {
     /**
      * @ORM\Id
@@ -20,17 +20,22 @@ class Module
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=64)
+     * @ORM\Column(type="string", length=255)
      */
-    private $nome;
+    private $name;
 
     /**
-     * @ORM\Column(type="string", length=16)
+     * @ORM\Column(type="boolean")
      */
-    private $syllabus;
+    private $hasExpiry;
 
     /**
-     * @ORM\OneToMany(targetEntity=CertificationModule::class, mappedBy="module", orphanRemoval=true)
+     * @ORM\Column(type="dateinterval", nullable=true)
+     */
+    private $expiryTimeInterval;
+
+    /**
+     * @ORM\OneToMany(targetEntity=CertificationModule::class, mappedBy="certification", orphanRemoval=true, cascade={"persist", "remove"})
      */
     private $certificationModules;
 
@@ -44,26 +49,38 @@ class Module
         return $this->id;
     }
 
-    public function getNome(): ?string
+    public function getName(): ?string
     {
-        return $this->nome;
+        return $this->name;
     }
 
-    public function setNome(string $nome): self
+    public function setName(string $name): self
     {
-        $this->nome = $nome;
+        $this->name = $name;
 
         return $this;
     }
 
-    public function getSyllabus(): ?string
+    public function getHasExpiry(): ?bool
     {
-        return $this->syllabus;
+        return $this->hasExpiry;
     }
 
-    public function setSyllabus(string $syllabus): self
+    public function setHasExpiry(bool $hasExpiry): self
     {
-        $this->syllabus = $syllabus;
+        $this->hasExpiry = $hasExpiry;
+
+        return $this;
+    }
+
+    public function getExpiryTimeInterval(): ?\DateInterval
+    {
+        return $this->expiryTimeInterval;
+    }
+
+    public function setExpiryTimeInterval(?\DateInterval $expiryTimeInterval): self
+    {
+        $this->expiryTimeInterval = $expiryTimeInterval;
 
         return $this;
     }
@@ -80,7 +97,7 @@ class Module
     {
         if (!$this->certificationModules->contains($certificationModule)) {
             $this->certificationModules[] = $certificationModule;
-            $certificationModule->setModule($this);
+            $certificationModule->setCertification($this);
         }
 
         return $this;
@@ -91,8 +108,8 @@ class Module
         if ($this->certificationModules->contains($certificationModule)) {
             $this->certificationModules->removeElement($certificationModule);
             // set the owning side to null (unless already changed)
-            if ($certificationModule->getModule() === $this) {
-                $certificationModule->setModule(null);
+            if ($certificationModule->getCertification() === $this) {
+                $certificationModule->setCertification(null);
             }
         }
 

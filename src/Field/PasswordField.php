@@ -16,7 +16,7 @@ class PasswordField implements FieldInterface
         return (new self())
             ->setProperty($propertyName)
             ->setFormType(RepeatedType::class)
-            ->setFormTypeOptions( [
+            ->setFormTypeOptions([
                 'type' => PasswordType::class,
                 'invalid_message' => 'Le password non corrispondono',
                 'first_options' => ['label' => $label],
