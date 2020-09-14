@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\Certification;
 use App\Entity\Module;
 use App\Entity\Notice;
+use App\Entity\Student;
 use App\Entity\User;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;

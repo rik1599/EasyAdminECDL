@@ -71,6 +71,11 @@ class User implements UserInterface
      */
     private $notices;
 
+    /**
+     * @ORM\OneToOne(targetEntity=Student::class, mappedBy="user", cascade={"persist", "remove"})
+     */
+    private $student;
+
     public function __construct()
     {
         $this->notices = new ArrayCollection();
@@ -263,6 +268,23 @@ class User implements UserInterface
             if ($notice->getUser() === $this) {
                 $notice->setUser(null);
             }
+        }
+
+        return $this;
+    }
+
+    public function getStudent(): ?Student
+    {
+        return $this->student;
+    }
+
+    public function setStudent(Student $student): self
+    {
+        $this->student = $student;
+
+        // set the owning side of the relation if necessary
+        if ($student->getUser() !== $this) {
+            $student->setUser($this);
         }
 
         return $this;
