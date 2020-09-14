@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Module;
+use App\Entity\Notice;
 use App\Entity\User;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
@@ -33,6 +34,7 @@ class AdminDashboardController extends AbstractDashboardController
     public function configureMenuItems(): iterable
     {
         yield MenuItem::linktoDashboard('Dashboard', 'fa fa-home');
+        yield MenuItem::linkToCrud('Avvisi', 'fa fa-bullhorn', Notice::class);
         
         yield MenuItem::section('Gestione Corsi ICDL');
         yield MenuItem::linkToCrud('Moduli', 'fa fa-tags', Module::class);
@@ -45,9 +47,10 @@ class AdminDashboardController extends AbstractDashboardController
     {   
         /** @var User $user */
         return parent::configureUserMenu($user)
-            ->setName($user->getFirstName() . " " . $user->getLastName())
+            ->setName($user->getFullName())
             ->setMenuItems([
-                MenuItem::linktoRoute('Cambia password', 'fa fa-user', 'change_password')
+                MenuItem::linktoRoute('Cambia password', 'fa fa-user', 'change_password'),
+                MenuItem::linkToLogout('Sign Out', 'fa fa-sign-out')
             ]);
     }
 }
