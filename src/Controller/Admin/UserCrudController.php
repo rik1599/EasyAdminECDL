@@ -10,14 +10,13 @@ use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use EasyCorp\Bundle\EasyAdminBundle\Filter\ArrayFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Router\CrudUrlGenerator;
 
 class UserCrudController extends AbstractCrudController
@@ -48,7 +47,6 @@ class UserCrudController extends AbstractCrudController
                 return !is_null($user->getStudent()) && 'ROLE_STUDENT' == $user->getRole();
             })
             ->linkToUrl(function(User $user) {
-                /** @var CrudUrlGenerator */
                 $crudUrlGenerator = $this->get(CrudUrlGenerator::class);
                 $url = $crudUrlGenerator->build()
                     ->setController(StudentCrudController::class)
@@ -62,7 +60,8 @@ class UserCrudController extends AbstractCrudController
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->add(Crud::PAGE_EDIT, $anagrafica)
             ->add(Crud::PAGE_INDEX, $anagrafica)
-            ->add(Crud::PAGE_DETAIL, $anagrafica);
+            ->add(Crud::PAGE_DETAIL, $anagrafica)
+            ->disable(Action::SAVE_AND_ADD_ANOTHER);
     }
 
     public function configureFields(string $pageName): iterable
@@ -89,14 +88,38 @@ class UserCrudController extends AbstractCrudController
         /** @var User $entityInstance */
         $this->userSecurityService->setupUserPassword($entityInstance, $entityInstance->getPassword());
         $entityInstance->setCreatedAt(new \DateTime());
-        parent::persistEntity($entityManager, $entityInstance);
-        
+
         if (in_array('ROLE_STUDENT', $entityInstance->getRoles())) {
             $student = new Student();
             $student->setUser($entityInstance);
             $student->setBirthDate(new \DateTime('1990-01-01'));
-            $entityManager->persist($student);
-            $entityManager->flush();
+            $entityInstance->setStudent($student);
+        }
+        parent::persistEntity($entityManager, $entityInstance);
+    }
+
+    public function new(AdminContext $context)
+    {
+        $response = parent::new($context);
+
+        //Catch submit
+        $submitButtonName = isset($context->getRequest()->request->get('ea')['newForm']['btn']) ? 
+            $context->getRequest()->request->get('ea')['newForm']['btn'] : null;
+
+        /** @var User */
+        $user = $context->getEntity()->getInstance();
+        if (!is_null($submitButtonName) && 
+            Action::SAVE_AND_RETURN === $submitButtonName &&
+            !is_null($user->getStudent())) {
+            $crudUrlGenerator = $this->get(CrudUrlGenerator::class);
+            $url = $crudUrlGenerator->build()
+                    ->setController(StudentCrudController::class)
+                    ->setAction(Action::EDIT)
+                    ->setEntityId($user->getStudent()->getId())
+                    ->generateUrl();
+            return $this->redirect($url);
+        } else {
+            return $response;
         }
     }
 }

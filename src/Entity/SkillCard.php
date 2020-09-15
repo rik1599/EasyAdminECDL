@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\SkillCardRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -21,7 +23,7 @@ class SkillCard
     /**
      * @ORM\Column(type="string", length=7)
      * @Assert\Regex(
-     *  pattern="/\d{7}/",
+     *  pattern="/^\d{7}$/",
      *  message="Consentite solo stringhe di 7 cifre decimali"
      * )
      */
@@ -43,6 +45,16 @@ class SkillCard
      * @ORM\Column(type="integer")
      */
     private $credits;
+
+    /**
+     * @ORM\ManyToMany(targetEntity=Module::class)
+     */
+    private $chosenModules;
+
+    public function __construct()
+    {
+        $this->chosenModules = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -93,6 +105,32 @@ class SkillCard
     public function setCredits(int $credits): self
     {
         $this->credits = $credits;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Module[]
+     */
+    public function getChosenModules(): Collection
+    {
+        return $this->chosenModules;
+    }
+
+    public function addChosenModule(Module $chosenModule): self
+    {
+        if (!$this->chosenModules->contains($chosenModule)) {
+            $this->chosenModules[] = $chosenModule;
+        }
+
+        return $this;
+    }
+
+    public function removeChosenModule(Module $chosenModule): self
+    {
+        if ($this->chosenModules->contains($chosenModule)) {
+            $this->chosenModules->removeElement($chosenModule);
+        }
 
         return $this;
     }

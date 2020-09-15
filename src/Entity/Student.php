@@ -102,6 +102,6 @@ class Student
 
     public function __toString()
     {
-        return $this->getUser()->getFullName() . " " . $this->getUser()->getEmail();
+        return $this->getUser()->getEmail();
     }
 }

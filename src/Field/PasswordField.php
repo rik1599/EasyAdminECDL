@@ -15,6 +15,7 @@ class PasswordField implements FieldInterface
     {
         return (new self())
             ->setProperty($propertyName)
+            ->setLabel($label)
             ->setFormType(RepeatedType::class)
             ->setFormTypeOptions([
                 'type' => PasswordType::class,
