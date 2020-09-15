@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\Certification;
 use App\Entity\Module;
 use App\Entity\Notice;
+use App\Entity\SkillCard;
 use App\Entity\Student;
 use App\Entity\User;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
@@ -43,6 +44,7 @@ class AdminDashboardController extends AbstractDashboardController
         yield MenuItem::section("Gestione utenti");
         yield MenuItem::linkToCrud("Utenti", "fa fa-users-cog", User::class);
         yield MenuItem::linkToCrud("Anagrafica", "fa fa-users", Student::class);
+        yield MenuItem::linkToCrud("Skill Cards", "fa fa-id-card", SkillCard::class);
     }
 
     public function configureUserMenu(UserInterface $user): UserMenu
@@ -51,7 +53,7 @@ class AdminDashboardController extends AbstractDashboardController
         return parent::configureUserMenu($user)
             ->setName($user->getFullName())
             ->setMenuItems([
-                MenuItem::linktoRoute('Cambia password', 'fa fa-user', 'change_password'),
+                MenuItem::linktoRoute('Cambia password', 'fa fa-key', 'change_password'),
                 MenuItem::linkToLogout('Sign Out', 'fa fa-sign-out')
             ]);
     }

@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\StudentRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -27,6 +29,16 @@ class Student
      * @ORM\Column(type="date")
      */
     private $birthDate;
+
+    /**
+     * @ORM\OneToMany(targetEntity=SkillCard::class, mappedBy="student", orphanRemoval=true)
+     */
+    private $skillCards;
+
+    public function __construct()
+    {
+        $this->skillCards = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -55,5 +67,41 @@ class Student
         $this->birthDate = $birthDate;
 
         return $this;
+    }
+
+    /**
+     * @return Collection|SkillCard[]
+     */
+    public function getSkillCards(): Collection
+    {
+        return $this->skillCards;
+    }
+
+    public function addSkillCard(SkillCard $skillCard): self
+    {
+        if (!$this->skillCards->contains($skillCard)) {
+            $this->skillCards[] = $skillCard;
+            $skillCard->setStudent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSkillCard(SkillCard $skillCard): self
+    {
+        if ($this->skillCards->contains($skillCard)) {
+            $this->skillCards->removeElement($skillCard);
+            // set the owning side to null (unless already changed)
+            if ($skillCard->getStudent() === $this) {
+                $skillCard->setStudent(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function __toString()
+    {
+        return $this->getUser()->getFullName() . " " . $this->getUser()->getEmail();
     }
 }

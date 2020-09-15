@@ -6,19 +6,18 @@ use App\Entity\Student;
 use App\Entity\User;
 use App\Field\PasswordField;
 use App\Service\UserSecurityService;
-use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
-use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\ArrayFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Router\CrudUrlGenerator;
 
 class UserCrudController extends AbstractCrudController
@@ -73,7 +72,13 @@ class UserCrudController extends AbstractCrudController
         yield TextField::new('lastName', 'Cognome');
         yield EmailField::new('email');
         yield PasswordField::new('password', 'Password')->onlyWhenCreating();
-        yield ChoiceField::new('role', 'Permessi')->setChoices(User::ROLES)->setRequired(true)->onlyWhenCreating();
+
+        if (in_array($pageName, [Crud::PAGE_DETAIL, Crud::PAGE_INDEX, Crud::PAGE_NEW])) {
+            yield ChoiceField::new('role', 'Permessi')
+            ->setChoices(User::ROLES)
+            ->setRequired(true);
+        }
+
         yield DateTimeField::new('createdAt')->hideOnForm();
         yield DateTimeField::new('updatedAt')->hideOnForm();
         yield DateTimeField::new('lastLoginAt')->hideOnForm();
