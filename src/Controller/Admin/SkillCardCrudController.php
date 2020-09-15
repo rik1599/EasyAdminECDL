@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\SkillCard;
+use App\Field\ChosenModulesField;
 use App\Field\SkillCardField;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -33,6 +34,6 @@ class SkillCardCrudController extends AbstractCrudController
         yield AssociationField::new('student', 'Email studente');
         yield AssociationField::new('certification');
         yield IntegerField::new('credits', 'Crediti');
-        yield AssociationField::new('chosenModules')->onlyOnDetail();
+        yield ChosenModulesField::new('chosenModules')->onlyWhenUpdating();
     }
 }

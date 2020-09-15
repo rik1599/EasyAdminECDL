@@ -102,15 +102,14 @@ class UserCrudController extends AbstractCrudController
     {
         $response = parent::new($context);
 
-        //Catch submit
+        //Catch submit button
         $submitButtonName = isset($context->getRequest()->request->get('ea')['newForm']['btn']) ? 
             $context->getRequest()->request->get('ea')['newForm']['btn'] : null;
 
         /** @var User */
         $user = $context->getEntity()->getInstance();
-        if (!is_null($submitButtonName) && 
-            Action::SAVE_AND_RETURN === $submitButtonName &&
-            !is_null($user->getStudent())) {
+        if (!is_null($submitButtonName) && !is_null($user->getStudent()) &&
+            Action::SAVE_AND_RETURN === $submitButtonName) {    //If I created a Student
             $crudUrlGenerator = $this->get(CrudUrlGenerator::class);
             $url = $crudUrlGenerator->build()
                     ->setController(StudentCrudController::class)

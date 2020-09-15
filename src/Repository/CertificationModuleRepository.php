@@ -18,7 +18,7 @@ class CertificationModuleRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, CertificationModule::class);
     }
-
+    
     // /**
     //  * @return CertificationModule[] Returns an array of CertificationModule objects
     //  */
