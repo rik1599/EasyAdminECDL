@@ -41,7 +41,8 @@ class AdminDashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Certificazioni', 'fa fa-chalkboard', Certification::class);
         
         yield MenuItem::section("Gestione utenti");
-        yield MenuItem::linkToCrud("Utenti", "fa fa-users", User::class);
+        yield MenuItem::linkToCrud("Utenti", "fa fa-users-cog", User::class);
+        yield MenuItem::linkToCrud("Anagrafica", "fa fa-users", Student::class);
     }
 
     public function configureUserMenu(UserInterface $user): UserMenu

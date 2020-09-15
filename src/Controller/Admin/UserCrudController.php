@@ -44,16 +44,16 @@ class UserCrudController extends AbstractCrudController
 
     public function configureActions(Actions $actions): Actions
     {
-        $changeBirth = Action::new('changeBirth', 'Modifica la data di nascita', 'fa fa-birthday-cake')
+        $anagrafica = Action::new('anagrafica', 'Anagrafica')
             ->displayIf(static function (User $user) {
-                return !is_null($user->getStudent());
+                return !is_null($user->getStudent()) && 'ROLE_STUDENT' == $user->getRole();
             })
             ->linkToUrl(function(User $user) {
                 /** @var CrudUrlGenerator */
                 $crudUrlGenerator = $this->get(CrudUrlGenerator::class);
                 $url = $crudUrlGenerator->build()
                     ->setController(StudentCrudController::class)
-                    ->setAction(Action::EDIT)
+                    ->setAction(Action::DETAIL)
                     ->setEntityId($user->getStudent()->getId())
                     ->generateUrl();
                 return $url;
@@ -61,8 +61,9 @@ class UserCrudController extends AbstractCrudController
         
         return $actions
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
-            ->add(Crud::PAGE_EDIT, $changeBirth)
-            ->add(Crud::PAGE_INDEX, $changeBirth);
+            ->add(Crud::PAGE_EDIT, $anagrafica)
+            ->add(Crud::PAGE_INDEX, $anagrafica)
+            ->add(Crud::PAGE_DETAIL, $anagrafica);
     }
 
     public function configureFields(string $pageName): iterable
@@ -76,12 +77,6 @@ class UserCrudController extends AbstractCrudController
         yield DateTimeField::new('createdAt')->hideOnForm();
         yield DateTimeField::new('updatedAt')->hideOnForm();
         yield DateTimeField::new('lastLoginAt')->hideOnForm();
-        yield AssociationField::new('student', 'Data di nascita')
-            ->formatValue(function ($value, User $entity) {
-                return $entity->getStudent()->getBirthDate()->format('d/m/Y');
-            })
-            ->addCssClass('btn-link disabled')
-            ->onlyOnDetail();
     }
 
     public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
