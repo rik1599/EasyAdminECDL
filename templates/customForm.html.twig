@@ -6,13 +6,6 @@
 
 {% block page_content %}
 
-{% if done is defined %}
-<div class="alert alert-success" role="alert">
-    Password modificata, puoi tornare alla <a href="{{ path('home') }}" class="badge badge-success">Home</a>
-</div>
-<br>
-{% endif %}
-
 {{ form(form) }}
 
 {% endblock %}
