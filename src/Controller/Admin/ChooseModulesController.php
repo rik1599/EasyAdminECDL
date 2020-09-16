@@ -36,7 +36,7 @@ class ChooseModulesController extends AbstractController
         $skillCard = $this->getDoctrine()->getRepository(SkillCard::class)->find($id);
         /** @var ModuleRepository */
         $repo = $this->getDoctrine()->getRepository(Module::class);
-        $choices = $repo->findNotMandatoryModules($skillCard->getCertification());
+        $choices = $repo->findModules($skillCard->getCertification(), false);
         $skillCardIndexUrl = $this->crudUrlGenerator->build()
             ->setController(SkillCardCrudController::class)
             ->setAction(Crud::PAGE_INDEX)
@@ -57,6 +57,7 @@ class ChooseModulesController extends AbstractController
         }
 
         return $this->render('customForm.html.twig', [
+            'title' => 'Imposta gli esami a scelta',
             'ea' => $adminContext,
             'form' => $form->createView(),
         ]);

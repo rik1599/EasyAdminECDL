@@ -42,6 +42,7 @@ class ChangePasswordController extends AbstractController
         }
 
         return $this->render('customForm.html.twig', [
+            'title' => 'Cambia password del profilo',
             'ea' => $adminContext,
             'form' => $form->createView()
         ]);
