@@ -3,7 +3,6 @@
 namespace App\Controller\Admin;
 
 use App\Controller\Admin\Crud\SkillCardCrudController;
-use App\Entity\CertificationModule;
 use App\Entity\Module;
 use App\Entity\SkillCard;
 use App\Repository\ModuleRepository;
