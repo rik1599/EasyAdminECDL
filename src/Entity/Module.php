@@ -34,6 +34,11 @@ class Module
      */
     private $certificationModules;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $minVote;
+
     public function __construct()
     {
         $this->certificationModules = new ArrayCollection();
@@ -95,6 +100,18 @@ class Module
                 $certificationModule->setModule(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getMinVote(): ?int
+    {
+        return $this->minVote;
+    }
+
+    public function setMinVote(?int $minVote): self
+    {
+        $this->minVote = $minVote;
 
         return $this;
     }

@@ -6,6 +6,7 @@ use App\Entity\Module;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class ModuleCrudController extends AbstractCrudController
@@ -27,5 +28,6 @@ class ModuleCrudController extends AbstractCrudController
         yield IdField::new('id')->hideOnForm();
         yield TextField::new('nome', 'Nome modulo');
         yield TextField::new('syllabus', 'Syllabus');
+        yield IntegerField::new('minVote', 'Voto minimo');
     }
 }
