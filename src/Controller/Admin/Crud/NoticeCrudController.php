@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Admin;
+namespace App\Controller\Admin\Crud;
 
 use App\Entity\Notice;
 use Doctrine\ORM\EntityManagerInterface;

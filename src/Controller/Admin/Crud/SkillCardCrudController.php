@@ -1,10 +1,9 @@
 <?php
 
-namespace App\Controller\Admin;
+namespace App\Controller\Admin\Crud;
 
 use App\Entity\SkillCard;
 use App\Field\ChosenModulesField;
-use App\Field\SkillCardField;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -13,6 +12,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Router\CrudUrlGenerator;
 
 class SkillCardCrudController extends AbstractCrudController
 {
@@ -22,8 +22,16 @@ class SkillCardCrudController extends AbstractCrudController
     }
 
     public function configureActions(Actions $actions): Actions
-    {
+    {   
+        $modules = Action::new('Scegli esami')
+            ->linkToRoute('choose_modules', function(SkillCard $skillCard) {
+                return [
+                    'id' => $skillCard->getId()
+                ];
+            });
+
         return $actions
+            ->add(Crud::PAGE_INDEX, $modules)
             ->add(Crud::PAGE_INDEX, Action::DETAIL);
     }
 
@@ -34,6 +42,5 @@ class SkillCardCrudController extends AbstractCrudController
         yield AssociationField::new('student', 'Email studente');
         yield AssociationField::new('certification');
         yield IntegerField::new('credits', 'Crediti');
-        yield ChosenModulesField::new('chosenModules')->onlyWhenUpdating();
     }
 }
