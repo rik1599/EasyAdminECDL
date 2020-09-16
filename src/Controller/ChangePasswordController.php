@@ -32,19 +32,19 @@ class ChangePasswordController extends AbstractController
         $form = $this->form($fieldName);
 
         $form->handleRequest($request);
-        $view = [
-            'ea' => $adminContext,
-            'form' => $form->createView()
-        ];
 
         if ($form->isSubmitted() && $form->isValid()) {
             $password = $form->getData()[$fieldName];
             $this->userSecurityService->setupUserPassword($user, $password);
             $this->getDoctrine()->getManager()->flush();
-            $view['done'] = true; 
+            $this->addFlash('success', 'Password modificata correttamente!');
+            return $this->redirectToRoute('home');
         }
 
-        return $this->render('changePassword.html.twig', $view);
+        return $this->render('customForm.html.twig', [
+            'ea' => $adminContext,
+            'form' => $form->createView()
+        ]);
     }
 
     protected function form($name) 
