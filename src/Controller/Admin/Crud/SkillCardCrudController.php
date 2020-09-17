@@ -61,6 +61,8 @@ class SkillCardCrudController extends AbstractCrudController
         yield IntegerField::new('credits', 'Crediti');
         yield DateField::new('expiresAt', 'Data scadenza')
             ->setHelp('Se non inserito verrà eventualmente usata la data odierna più la durata del certificazione scelta');
+        yield TextField::new('status')
+            ->hideOnForm();
     }
 
     /**
@@ -73,6 +75,7 @@ class SkillCardCrudController extends AbstractCrudController
                 (new \DateTime())->add($entityInstance->getCertification()->getDuration())
             );
         }
+        $entityInstance->setStatus('ACTIVATED');
         parent::persistEntity($entityManager, $entityInstance);
     }
 
