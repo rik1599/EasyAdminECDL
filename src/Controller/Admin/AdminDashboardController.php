@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\Certification;
 use App\Entity\Module;
 use App\Entity\Notice;
+use App\Entity\Session;
 use App\Entity\SkillCard;
 use App\Entity\Student;
 use App\Entity\User;
@@ -45,6 +46,9 @@ class AdminDashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud("Utenti", "fa fa-users-cog", User::class);
         yield MenuItem::linkToCrud("Anagrafica", "fa fa-users", Student::class);
         yield MenuItem::linkToCrud("Skill Cards", "fa fa-id-card", SkillCard::class);
+
+        yield MenuItem::section("Gestione esami");
+        yield MenuItem::linkToCrud("Sessioni", "fa fa-calendar-day", Session::class);
     }
 
     public function configureUserMenu(UserInterface $user): UserMenu
