@@ -4,8 +4,6 @@ namespace App\Controller\Admin\Crud;
 
 use App\Entity\Module;
 use App\Entity\SkillCard;
-use DateTime;
-use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -72,7 +70,7 @@ class SkillCardCrudController extends AbstractCrudController
     {
         if (!$entityInstance->getCertification()->hasExpiry() && is_null($entityInstance->getExpiresAt())) {
             $entityInstance->setExpiresAt(
-                (new DateTime())->add($entityInstance->getCertification()->getDuration())
+                (new \DateTime())->add($entityInstance->getCertification()->getDuration())
             );
         }
         parent::persistEntity($entityManager, $entityInstance);
@@ -84,10 +82,10 @@ class SkillCardCrudController extends AbstractCrudController
         $skillCard = $adminContext->getEntity()->getInstance();
         $updateCert = $skillCard->getCertification()->getUpdateCertification();
         $skillCard->setCertification($updateCert);
-        /** @var DateTime */
+        /** @var \DateTime */
         $oldExpiry = $skillCard->getExpiresAt();
-        if (!is_null($updateCert->getDuration()) && $oldExpiry instanceof DateTime) {
-            $newExpiry = DateTimeImmutable::createFromMutable($oldExpiry->add($updateCert->getDuration()));
+        if (!is_null($updateCert->getDuration()) && $oldExpiry instanceof \DateTime) {
+            $newExpiry = \DateTimeImmutable::createFromMutable($oldExpiry->add($updateCert->getDuration()));
             $skillCard->setExpiresAt($newExpiry);
         }
         $this->getDoctrine()->getManager()->flush($skillCard);
