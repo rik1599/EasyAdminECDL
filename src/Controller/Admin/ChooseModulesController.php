@@ -41,11 +41,6 @@ class ChooseModulesController extends AbstractController
             ->setAction(Crud::PAGE_INDEX)
             ->generateUrl();
 
-        if (sizeof($choices) == 0) {
-            $this->addFlash('danger', 'La certificazione di questa Skillcard non prevede esami a scelta');
-            return $this->redirect($skillCardIndexUrl);
-        }
-
         $form = $this->createModulesForm($skillCard, $choices);
 
         $form->handleRequest($request);

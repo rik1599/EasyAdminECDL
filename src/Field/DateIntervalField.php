@@ -14,6 +14,7 @@ class DateIntervalField implements FieldInterface
     {
         return (new self())
             ->setProperty($propertyName)
+            ->setLabel($label)
             ->setFormType(DateIntervalType::class)
             ->setFormTypeOptions([
                 'widget' => 'choice',

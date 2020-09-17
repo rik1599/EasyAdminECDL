@@ -3,6 +3,7 @@
 namespace App\Controller\Admin\Crud;
 
 use App\Entity\Notice;
+use App\Enum\RoleEnum;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -31,18 +32,20 @@ class NoticeCrudController extends AbstractCrudController
     {
         return $actions
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
-            ->setPermission(Action::NEW, 'ROLE_ADMIN')
-            ->setPermission(Action::EDIT, 'ROLE_ADMIN')
-            ->setPermission(Action::DELETE, 'ROLE_ADMIN');
+            ->setPermission(Action::NEW, RoleEnum::ROLE_ADMIN)
+            ->setPermission(Action::EDIT, RoleEnum::ROLE_ADMIN)
+            ->setPermission(Action::DELETE, RoleEnum::ROLE_ADMIN);
     }
 
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new('id')->hideOnForm();
         yield DateTimeField::new('createdAt', 'Data di creazione')->hideOnForm();
-        yield AssociationField::new('user', 'Creato da')->formatValue(function ($value, $entity) {
-            return $entity->getUser()->getFullName();
-        })->hideOnForm();
+        yield AssociationField::new('user', 'Creato da'
+            )->formatValue(function ($value, $entity) {
+                return $entity->getUser()->getFullName();
+            })
+            ->hideOnForm();
         yield TextareaField::new('text', 'Testo')->hideOnIndex();
     }
 

@@ -51,6 +51,11 @@ class SkillCard
      */
     private $chosenModules;
 
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $expiresAt;
+
     public function __construct()
     {
         $this->chosenModules = new ArrayCollection();
@@ -131,6 +136,18 @@ class SkillCard
         if ($this->chosenModules->contains($chosenModule)) {
             $this->chosenModules->removeElement($chosenModule);
         }
+
+        return $this;
+    }
+
+    public function getExpiresAt(): ?\DateTimeInterface
+    {
+        return $this->expiresAt;
+    }
+
+    public function setExpiresAt(?\DateTimeInterface $expiresAt): self
+    {
+        $this->expiresAt = $expiresAt;
 
         return $this;
     }

@@ -29,6 +29,16 @@ class Certification
      */
     private $certificationModules;
 
+    /**
+     * @ORM\Column(type="dateinterval", nullable=true)
+     */
+    private $duration;
+
+    /**
+     * @ORM\OneToOne(targetEntity=Certification::class)
+     */
+    private $updateCertification;
+
     public function __construct()
     {
         $this->certificationModules = new ArrayCollection();
@@ -85,5 +95,34 @@ class Certification
     public function __toString()
     {
         return $this->name;
+    }
+
+    public function getDuration(): ?\DateInterval
+    {
+        return $this->duration;
+    }
+
+    public function setDuration(?\DateInterval $duration): self
+    {
+        $this->duration = $duration;
+
+        return $this;
+    }
+
+    public function hasExpiry(): bool
+    {
+        return is_null($this->duration);
+    }
+
+    public function getUpdateCertification(): ?self
+    {
+        return $this->updateCertification;
+    }
+
+    public function setUpdateCertification(?self $updateCertification): self
+    {
+        $this->updateCertification = $updateCertification;
+
+        return $this;
     }
 }

@@ -15,16 +15,14 @@
         </thead>
         <tbody>
         {% for module in entity.CertificationModules %}
+            {% set badge_color = module.IsMandatory ? 'success' : 'danger' %}
+            {% set badge_text = module.IsMandatory ? 'SI' : 'NO' %}
             <tr>
                 <th scope="row">{{ loop.index }}</th>
                 <td>{{ module.Module.Nome }}</td>
                 <td>{{ module.Module.Syllabus }}</td>
                 <td>
-                    {% if module.IsMandatory %}
-                        <span class="badge badge-pill badge-success">SI</span>
-                    {% else %}
-                        <span class="badge badge-pill badge-danger">NO</span>
-                    {% endif %}
+                    <span class="badge badge-pill badge-{{ badge_color }}">{{ badge_text }}</span>
                 </td>
             </tr>
         {% endfor %}
