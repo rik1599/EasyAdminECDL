@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\SessionRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -48,6 +50,16 @@ class Session
      */
     private $rounds;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Booking::class, mappedBy="session", orphanRemoval=true)
+     */
+    private $bookings;
+
+    public function __construct()
+    {
+        $this->bookings = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -70,7 +82,7 @@ class Session
         return $this->subscribeExpireDate;
     }
 
-    public function setSubscribeExpireDate(\DateTimeInterface $subscribeExpireDate): self
+    public function setSubscribeExpireDate(?\DateTimeInterface $subscribeExpireDate): self
     {
         $this->subscribeExpireDate = $subscribeExpireDate;
 
@@ -121,6 +133,37 @@ class Session
     public function setRounds(int $rounds): self
     {
         $this->rounds = $rounds;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Booking[]
+     */
+    public function getBookings(): Collection
+    {
+        return $this->bookings;
+    }
+
+    public function addBooking(Booking $booking): self
+    {
+        if (!$this->bookings->contains($booking)) {
+            $this->bookings[] = $booking;
+            $booking->setSession($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBooking(Booking $booking): self
+    {
+        if ($this->bookings->contains($booking)) {
+            $this->bookings->removeElement($booking);
+            // set the owning side to null (unless already changed)
+            if ($booking->getSession() === $this) {
+                $booking->setSession(null);
+            }
+        }
 
         return $this;
     }

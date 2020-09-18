@@ -4,6 +4,7 @@ namespace App\Controller\Admin\Crud;
 
 use App\Entity\Student;
 use App\Entity\User;
+use App\Enum\EnumRole;
 use App\Enum\RoleEnum;
 use App\Field\PasswordField;
 use App\Service\UserSecurityService;
@@ -45,7 +46,7 @@ class UserCrudController extends AbstractCrudController
     {
         $anagrafica = Action::new('anagrafica', 'Anagrafica')
             ->displayIf(static function (User $user) {
-                return !is_null($user->getStudent()) && RoleEnum::ROLE_STUDENT == $user->getRole();
+                return !is_null($user->getStudent()) && EnumRole::ROLE_STUDENT == $user->getRole();
             })
             ->linkToUrl(function(User $user) {
                 $crudUrlGenerator = $this->get(CrudUrlGenerator::class);
@@ -73,7 +74,7 @@ class UserCrudController extends AbstractCrudController
         yield EmailField::new('email');
         yield PasswordField::new('password', 'Password')->onlyWhenCreating();
 
-        $roles = RoleEnum::getAll();
+        $roles = EnumRole::getAll();
         if (in_array($pageName, [Crud::PAGE_DETAIL, Crud::PAGE_INDEX, Crud::PAGE_NEW])) {
             yield ChoiceField::new('role', 'Permessi')
             ->setChoices($roles)
@@ -91,7 +92,7 @@ class UserCrudController extends AbstractCrudController
         $this->userSecurityService->setupUserPassword($entityInstance, $entityInstance->getPassword());
         $entityInstance->setCreatedAt(new \DateTime());
 
-        if (in_array(RoleEnum::ROLE_STUDENT, $entityInstance->getRoles())) {
+        if (in_array(EnumRole::ROLE_STUDENT, $entityInstance->getRoles())) {
             $student = new Student();
             $student->setUser($entityInstance);
             $student->setBirthDate(new \DateTime('1990-01-01'));

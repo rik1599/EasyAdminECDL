@@ -3,7 +3,7 @@
 namespace App\Controller\Admin\Crud;
 
 use App\Entity\Notice;
-use App\Enum\RoleEnum;
+use App\Enum\EnumRole;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -32,9 +32,9 @@ class NoticeCrudController extends AbstractCrudController
     {
         return $actions
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
-            ->setPermission(Action::NEW, RoleEnum::ROLE_ADMIN)
-            ->setPermission(Action::EDIT, RoleEnum::ROLE_ADMIN)
-            ->setPermission(Action::DELETE, RoleEnum::ROLE_ADMIN);
+            ->setPermission(Action::NEW, EnumRole::ROLE_ADMIN)
+            ->setPermission(Action::EDIT, EnumRole::ROLE_ADMIN)
+            ->setPermission(Action::DELETE, EnumRole::ROLE_ADMIN);
     }
 
     public function configureFields(string $pageName): iterable

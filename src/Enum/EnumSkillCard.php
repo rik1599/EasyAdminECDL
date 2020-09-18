@@ -2,7 +2,7 @@
 
 namespace App\Enum;
 
-abstract class SkillCardEnum extends Enum
+abstract class EnumSkillCard extends Enum
 {
     const ACTIVATED = 'ACTIVATED';
     const EXPIRED = 'EXPIRED';
