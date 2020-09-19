@@ -36,9 +36,9 @@ class Booking
     private $module;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="integer")
      */
-    private $datetime;
+    private $round;
 
     public function getId(): ?int
     {
@@ -81,14 +81,14 @@ class Booking
         return $this;
     }
 
-    public function getDatetime(): ?\DateTimeInterface
+    public function getRound(): ?int
     {
-        return $this->datetime;
+        return $this->round;
     }
 
-    public function setDatetime(\DateTimeInterface $datetime): self
+    public function setDatetime(int $round): self
     {
-        $this->datetime = $datetime;
+        $this->round = $round;
 
         return $this;
     }

@@ -3,6 +3,9 @@
 namespace App\Repository;
 
 use App\Entity\Session;
+use App\Entity\SkillCard;
+use App\Enum\EnumBookingStatus;
+use App\Enum\EnumSessionStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -19,6 +22,23 @@ class SessionRepository extends ServiceEntityRepository
         parent::__construct($registry, Session::class);
     }
 
+    public function getAvailableSessionsForSkillCard(SkillCard $skillCard)
+    {
+        return $this->createQueryBuilder('s')
+            ->where('s.status = :status')
+            ->andWhere('s.subscribeExpireDate >= :date')
+            ->andWhere('s.certification = :cert')
+            ->setParameters([
+                'status' => EnumSessionStatus::ACTIVATED,
+                'date' => (new \DateTime())->format('Y-m-d'),
+                'cert' => $skillCard->getCertification()
+            ])->getQuery()->getResult();
+    }
+
+    public function getBookedSessions(SkillCard $skillCard)
+    {
+
+    }
     // /**
     //  * @return Session[] Returns an array of Session objects
     //  */

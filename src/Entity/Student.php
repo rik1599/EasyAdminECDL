@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\EnumSkillCard;
 use App\Repository\StudentRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -75,6 +76,13 @@ class Student
     public function getSkillCards(): Collection
     {
         return $this->skillCards;
+    }
+
+    public function getValidSkillCard()
+    {
+        return $this->skillCards->filter(function (SkillCard $skillCard) {
+            return $skillCard->getStatus() != EnumSkillCard::EXPIRED;
+        });
     }
 
     public function addSkillCard(SkillCard $skillCard): self
