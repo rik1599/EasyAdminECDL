@@ -2,6 +2,7 @@
 
 namespace App\Controller\Student;
 
+use App\Entity\Booking;
 use App\Entity\Notice;
 use App\Entity\User;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
@@ -34,7 +35,8 @@ class StudentDashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Avvisi', 'fa fa-bullhorn', Notice::class);
 
         yield MenuItem::section('Gestione esami');
-        yield MenuItem::linktoRoute('Prenota esame', 'fa fa-edit', 'bookings');
+        //yield MenuItem::linktoRoute('Prenota esame', 'fa fa-edit', 'bookings');
+        yield MenuItem::linkToCrud('Prenota esame', 'fa fa-edit', Booking::class);
     }
 
     public function configureUserMenu(UserInterface $user): UserMenu

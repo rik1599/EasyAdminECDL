@@ -15,6 +15,9 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\HttpFoundation\Request;
 
 class SkillCardCrudController extends AbstractCrudController
 {
@@ -32,11 +35,7 @@ class SkillCardCrudController extends AbstractCrudController
                 $choices = $repo->findModules($skillCard->getCertification(), false);
                 return sizeof($choices) > 0;
             })
-            ->linkToRoute('choose_modules', function(SkillCard $skillCard) {
-                return [
-                    'id' => $skillCard->getId()
-                ];
-            });
+            ->linkToCrudAction('chooseModules');
 
         $update = Action::new('Rinnova')
             ->displayIf(static function (SkillCard $skillCard) {
@@ -93,5 +92,44 @@ class SkillCardCrudController extends AbstractCrudController
         }
         $this->getDoctrine()->getManager()->flush($skillCard);
         return $this->redirect($adminContext->getReferrer());
+    }
+
+    const fieldName = 'chosenModules';
+    public function chooseModules(Request $request, AdminContext $adminContext)
+    {
+        /** @var SkillCard */
+        $skillCard = $adminContext->getEntity()->getInstance();
+        /** @var ModuleRepository */
+        $repo = $this->getDoctrine()->getRepository(Module::class);
+        $choices = $repo->findModules($skillCard->getCertification(), false);
+
+        $form = $this->createModulesForm($skillCard, $choices);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->getDoctrine()->getManager()->flush();
+            $this->addFlash('success', 'Esami a scelta impostati correttamente');
+            return $this->redirect($adminContext->getReferrer());
+        }
+
+        return $this->render('customForm.html.twig', [
+            'title' => 'Imposta gli esami a scelta',
+            'ea' => $adminContext,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    protected function createModulesForm(SkillCard $skillCard, array $choices)
+    {   
+        return $this->createFormBuilder($skillCard)
+            ->add(self::fieldName, EntityType::class, [
+                'class' => Module::class,
+                'choices' => $choices,
+                'choice_label' => 'nome',
+                'expanded' => true,
+                'multiple' => true,
+            ])
+            ->add('save', SubmitType::class)
+            ->getForm();
     }
 }
