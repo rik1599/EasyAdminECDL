@@ -52,7 +52,11 @@ class SkillCardCrudController extends AbstractCrudController
         yield IdField::new('id')->hideOnForm();
         yield TextField::new('number', 'Numero');
         yield AssociationField::new('student', 'Email studente');
-        yield AssociationField::new('certification', 'Certificazione');
+        
+        if ($pageName !== Crud::PAGE_EDIT) {
+            yield AssociationField::new('certification', 'Certificazione');
+        }
+        
         yield IntegerField::new('credits', 'Crediti');
         yield DateField::new('expiresAt', 'Data scadenza')
             ->setHelp('Se non inserito verrà eventualmente usata la data odierna più la durata del certificazione scelta');
@@ -87,6 +91,11 @@ class SkillCardCrudController extends AbstractCrudController
 
     protected function renovateSkillCard(AdminContext $adminContext)
     {
+        /*
+            TODO: in fase di rinnovo aggiungere gli esami della nuova certificazione (se non sono già presenti nel portfolio)
+            Se questi sono già presenti nel portfolio, allora impostare il campo isPassed come false
+        */
+
         /** @var SkillCard */
         $skillCard = $adminContext->getEntity()->getInstance();
         $updateCert = $skillCard->getCertification()->getUpdateCertification();
@@ -101,6 +110,7 @@ class SkillCardCrudController extends AbstractCrudController
         return $this->redirect($adminContext->getReferrer());
     }
 
+    /* #region ChooseModule Region */
     const fieldName = 'skillCardModules';
     public function chooseModules(Request $request, AdminContext $adminContext)
     {
@@ -161,4 +171,5 @@ class SkillCardCrudController extends AbstractCrudController
             ->add('save', SubmitType::class)
             ->getForm();
     }
+    /* #endregion */
 }
