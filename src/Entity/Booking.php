@@ -18,27 +18,37 @@ class Booking
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity=SkillCard::class, inversedBy="bookings")
+     * @ORM\ManyToOne(targetEntity=SkillCard::class)
      * @ORM\JoinColumn(nullable=false)
      */
     private $skillCard;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Session::class, inversedBy="bookings")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $session;
-
-    /**
-     * @ORM\ManyToOne(targetEntity=Module::class)
+     * @ORM\ManyToOne(targetEntity=SkillCardModules::class, inversedBy="bookings")
      * @ORM\JoinColumn(nullable=false)
      */
     private $module;
 
     /**
+     * @ORM\ManyToOne(targetEntity=Session::class)
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $session;
+
+    /**
      * @ORM\Column(type="integer")
      */
-    private $round;
+    private $turn;
+
+    /**
+     * @ORM\Column(type="string", length=32)
+     */
+    private $status;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $isApproved;
 
     public function getId(): ?int
     {
@@ -57,6 +67,18 @@ class Booking
         return $this;
     }
 
+    public function getModule(): ?SkillCardModules
+    {
+        return $this->module;
+    }
+
+    public function setModule(?SkillCardModules $module): self
+    {
+        $this->module = $module;
+
+        return $this;
+    }
+
     public function getSession(): ?Session
     {
         return $this->session;
@@ -69,26 +91,38 @@ class Booking
         return $this;
     }
 
-    public function getModule(): ?Module
+    public function getTurn(): ?int
     {
-        return $this->module;
+        return $this->turn;
     }
 
-    public function setModule(?Module $module): self
+    public function setTurn(int $turn): self
     {
-        $this->module = $module;
+        $this->turn = $turn;
 
         return $this;
     }
 
-    public function getRound(): ?int
+    public function getStatus(): ?string
     {
-        return $this->round;
+        return $this->status;
     }
 
-    public function setDatetime(int $round): self
+    public function setStatus(string $status): self
     {
-        $this->round = $round;
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getIsApproved(): ?bool
+    {
+        return $this->isApproved;
+    }
+
+    public function setIsApproved(bool $isApproved): self
+    {
+        $this->isApproved = $isApproved;
 
         return $this;
     }

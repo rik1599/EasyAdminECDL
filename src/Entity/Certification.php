@@ -35,9 +35,15 @@ class Certification
     private $duration;
 
     /**
-     * @ORM\OneToOne(targetEntity=Certification::class)
+     * @ORM\ManyToOne(targetEntity=Certification::class, inversedBy="updateOf")
+     * @ORM\JoinColumn(name="update_certification_id", referencedColumnName="id")
      */
     private $updateCertification;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Certification::class, mappedBy="updateCertification")
+     */
+    private $updateOf;
 
     /**
      * @ORM\OneToMany(targetEntity=Session::class, mappedBy="certification", orphanRemoval=true)

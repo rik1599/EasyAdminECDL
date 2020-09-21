@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Certification;
 use App\Entity\SkillCard;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -17,6 +18,17 @@ class SkillCardRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, SkillCard::class);
+    }
+
+    /**
+     * @return SkillCard[]
+     */
+    public function findByCertification(Certification $certification)
+    {
+        return $this->createQueryBuilder('s')
+            ->where('s.certification = :val')
+            ->setParameter('val', $certification->getId())
+            ->getQuery()->getResult();
     }
 
     // /**

@@ -21,7 +21,7 @@ class SkillCard
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=7)
+     * @ORM\Column(type="string", length=7, unique=true)
      * @Assert\Regex(
      *  pattern="/^\d{7}$/",
      *  message="Consentite solo stringhe di 7 cifre decimali"
@@ -47,11 +47,6 @@ class SkillCard
     private $credits;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Module::class)
-     */
-    private $chosenModules;
-
-    /**
      * @ORM\Column(type="datetime", nullable=true)
      */
     private $expiresAt;
@@ -66,10 +61,15 @@ class SkillCard
      */
     private $bookings;
 
+    /**
+     * @ORM\OneToMany(targetEntity=SkillCardModules::class, mappedBy="skillCard", orphanRemoval=true, cascade={"persist", "remove"})
+     */
+    private $skillCardModules;
+
     public function __construct()
     {
-        $this->chosenModules = new ArrayCollection();
         $this->bookings = new ArrayCollection();
+        $this->skillCardModules = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -125,32 +125,6 @@ class SkillCard
         return $this;
     }
 
-    /**
-     * @return Collection|Module[]
-     */
-    public function getChosenModules(): Collection
-    {
-        return $this->chosenModules;
-    }
-
-    public function addChosenModule(Module $chosenModule): self
-    {
-        if (!$this->chosenModules->contains($chosenModule)) {
-            $this->chosenModules[] = $chosenModule;
-        }
-
-        return $this;
-    }
-
-    public function removeChosenModule(Module $chosenModule): self
-    {
-        if ($this->chosenModules->contains($chosenModule)) {
-            $this->chosenModules->removeElement($chosenModule);
-        }
-
-        return $this;
-    }
-
     public function getExpiresAt(): ?\DateTimeInterface
     {
         return $this->expiresAt;
@@ -200,6 +174,42 @@ class SkillCard
             // set the owning side to null (unless already changed)
             if ($booking->getSkillCard() === $this) {
                 $booking->setSkillCard(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function __toString()
+    {
+        return $this->number;
+    }
+
+    /**
+     * @return Collection|SkillCardModules[]
+     */
+    public function getSkillCardModules(): Collection
+    {
+        return $this->skillCardModules;
+    }
+
+    public function addSkillCardModule(SkillCardModules $skillCardModule): self
+    {
+        if (!$this->skillCardModules->contains($skillCardModule)) {
+            $this->skillCardModules[] = $skillCardModule;
+            $skillCardModule->setSkillCard($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSkillCardModule(SkillCardModules $skillCardModule): self
+    {
+        if ($this->skillCardModules->contains($skillCardModule)) {
+            $this->skillCardModules->removeElement($skillCardModule);
+            // set the owning side to null (unless already changed)
+            if ($skillCardModule->getSkillCard() === $this) {
+                $skillCardModule->setSkillCard(null);
             }
         }
 

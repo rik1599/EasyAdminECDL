@@ -4,6 +4,8 @@ namespace App\Controller\Admin\Crud;
 
 use App\Entity\Module;
 use App\Entity\SkillCard;
+use App\Entity\SkillCardModules;
+use App\Repository\ModuleRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -29,12 +31,6 @@ class SkillCardCrudController extends AbstractCrudController
     public function configureActions(Actions $actions): Actions
     {   
         $modules = Action::new('Scegli esami')
-            ->displayIf(function (SkillCard $skillCard) {
-                /** @var ModuleRepository */
-                $repo = $this->getDoctrine()->getRepository(Module::class);
-                $choices = $repo->findModules($skillCard->getCertification(), false);
-                return sizeof($choices) > 0;
-            })
             ->linkToCrudAction('chooseModules');
 
         $update = Action::new('Rinnova')
@@ -74,6 +70,17 @@ class SkillCardCrudController extends AbstractCrudController
                 (new \DateTime())->add($entityInstance->getCertification()->getDuration())
             );
         }
+
+        /** @var ModuleRepository */
+        $repo = $this->getDoctrine()->getRepository(Module::class);
+        $modules = $repo->findModules($entityInstance->getCertification(), true);
+        foreach ($modules as $module) {
+            $entityInstance->addSkillCardModule(
+                (new SkillCardModules())
+                    ->setModule($module)
+                    ->setIsPassed(false)
+            );
+        }
         $entityInstance->setStatus('ACTIVATED');
         parent::persistEntity($entityManager, $entityInstance);
     }
@@ -94,40 +101,62 @@ class SkillCardCrudController extends AbstractCrudController
         return $this->redirect($adminContext->getReferrer());
     }
 
-    const fieldName = 'chosenModules';
+    const fieldName = 'skillCardModules';
     public function chooseModules(Request $request, AdminContext $adminContext)
     {
         /** @var SkillCard */
         $skillCard = $adminContext->getEntity()->getInstance();
         /** @var ModuleRepository */
         $repo = $this->getDoctrine()->getRepository(Module::class);
-        $choices = $repo->findModules($skillCard->getCertification(), false);
+        $choices = $repo->findModules($skillCard->getCertification(), null);
+        $defaults = [];
+        $ids = [];
 
-        $form = $this->createModulesForm($skillCard, $choices);
+        foreach ($skillCard->getSkillCardModules()->getIterator() as $skillCardModule) {
+            /** @var SkillCardModules $skillCardModule */
+            $module = $skillCardModule->getModule();
+            $defaults[] = $module;
+            $ids[$module->getId()] = $skillCardModule->getId();
+        }
+
+        $form = $this->createModulesForm($choices, $defaults);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
+            /** @var Module[] */
+            $choices = $form->getData()['skillCardModules'];
+            foreach (array_diff($choices, $defaults) as $choice) {
+                $skillCard->addSkillCardModule((new SkillCardModules)->setModule($choice)->setIsPassed(false));
+            }
+            
+            $repo = $this->getDoctrine()->getRepository(SkillCardModules::class);
+            foreach (array_diff($defaults, $choices) as $choice) {
+                $skillCard->removeSkillCardModule($repo->find($ids[$choice->getId()]));
+            }
+
             $this->getDoctrine()->getManager()->flush();
-            $this->addFlash('success', 'Esami a scelta impostati correttamente');
+            $this->addFlash('success', 'Esami impostati correttamente');
             return $this->redirect($adminContext->getReferrer());
         }
 
         return $this->render('customForm.html.twig', [
-            'title' => 'Imposta gli esami a scelta',
+            'title' => 'Imposta gli esami',
             'ea' => $adminContext,
             'form' => $form->createView(),
         ]);
     }
 
-    protected function createModulesForm(SkillCard $skillCard, array $choices)
+    protected function createModulesForm(array $choices, array $defaults)
     {   
-        return $this->createFormBuilder($skillCard)
+        return $this->createFormBuilder()
             ->add(self::fieldName, EntityType::class, [
+                'label' => false,
                 'class' => Module::class,
                 'choices' => $choices,
                 'choice_label' => 'nome',
                 'expanded' => true,
                 'multiple' => true,
+                'data' => $defaults
             ])
             ->add('save', SubmitType::class)
             ->getForm();
