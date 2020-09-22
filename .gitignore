@@ -15,3 +15,11 @@
 .phpunit.result.cache
 /phpunit.xml
 ###< symfony/phpunit-bridge ###
+/.idea/codeStyles/codeStyleConfig.xml
+/.idea/deployment.xml
+/.idea/EasyAdminICDL.iml
+/.idea/modules.xml
+/.idea/php.xml
+/.idea/symfony2.xml
+/.idea/vcs.xml
+/.idea/workspace.xml

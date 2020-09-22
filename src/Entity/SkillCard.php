@@ -62,7 +62,7 @@ class SkillCard
     private $bookings;
 
     /**
-     * @ORM\OneToMany(targetEntity=SkillCardModules::class, mappedBy="skillCard", orphanRemoval=true, cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity=SkillCardModule::class, mappedBy="skillCard", orphanRemoval=true, cascade={"persist", "remove"})
      */
     private $skillCardModules;
 
@@ -186,14 +186,14 @@ class SkillCard
     }
 
     /**
-     * @return Collection|SkillCardModules[]
+     * @return Collection|SkillCardModule[]
      */
     public function getSkillCardModules(): Collection
     {
         return $this->skillCardModules;
     }
 
-    public function addSkillCardModule(SkillCardModules $skillCardModule): self
+    public function addSkillCardModule(SkillCardModule $skillCardModule): self
     {
         if (!$this->skillCardModules->contains($skillCardModule)) {
             $this->skillCardModules[] = $skillCardModule;
@@ -203,7 +203,7 @@ class SkillCard
         return $this;
     }
 
-    public function removeSkillCardModule(SkillCardModules $skillCardModule): self
+    public function removeSkillCardModule(SkillCardModule $skillCardModule): self
     {
         if ($this->skillCardModules->contains($skillCardModule)) {
             $this->skillCardModules->removeElement($skillCardModule);

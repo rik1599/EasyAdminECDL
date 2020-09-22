@@ -22,27 +22,4 @@ class ModuleRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Module::class);
     }
-
-    /**
-     * Return modules of given Certification
-     * @param Certification $certification
-     * @param bool|null true if you are looking for mandatory modules,
-     *      false if you are looking for non-mandatory modules,
-     *      null if you are looking for all modules
-     * @return Module[]
-     */
-    public function findModules(Certification $certification, ?bool $mandatory=null)
-    {
-        $qb = $this->createQueryBuilder('m')
-                ->innerJoin(CertificationModule::class, 'cm', Join::WITH, 'm.id = cm.module')
-                ->where('cm.certification = :id');
-
-        if (!is_null($mandatory)) {
-            $mandatoryString = $mandatory ? 'TRUE' : 'FALSE';
-            $qb->andWhere("cm.isMandatory = $mandatoryString");
-        }
-        
-        $qb->setParameter('id', $certification->getId());
-        return $qb->getQuery()->getResult();
-    }
 }

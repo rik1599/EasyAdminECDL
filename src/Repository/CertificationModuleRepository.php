@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Certification;
 use App\Entity\CertificationModule;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -18,33 +19,25 @@ class CertificationModuleRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, CertificationModule::class);
     }
-    
-    // /**
-    //  * @return CertificationModule[] Returns an array of CertificationModule objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('c.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
 
-    /*
-    public function findOneBySomeField($value): ?CertificationModule
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+    /**
+     * Return modules of given Certification
+     * @param Certification $certification
+     * @param bool|null true if you are looking for mandatory modules,
+     *      false if you are looking for non-mandatory modules,
+     *      null if you are looking for all modules
+     * @return CertificationModule[]
+     */
+    public function findByCertification(Certification $certification, bool $mandatory = null) {
+        $qb = $this->createQueryBuilder('cm')
+            ->where('cm.certification = :id');
+
+        if (!is_null($mandatory)) {
+            $mandatoryString = $mandatory ? 'TRUE' : 'FALSE';
+            $qb->andWhere("cm.isMandatory = $mandatoryString");
+        }
+
+        $qb->setParameter('id', $certification->getId());
+        return $qb->getQuery()->getResult();
     }
-    */
 }

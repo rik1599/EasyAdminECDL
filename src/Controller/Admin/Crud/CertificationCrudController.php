@@ -48,7 +48,7 @@ class CertificationCrudController extends AbstractCrudController
             ->addCssClass('form-inline');
         yield DateIntervalField::new('duration', 'Durata certificazione')
             ->formatValue(function (?\DateInterval $value) {
-                $duration = is_null($value) ? '<p>Nessuna scadenza</p>' : $value->format('%y anni');
+                $duration = is_null($value) ? 'Nessuna scadenza' : $value->format('%y anni');
                 return $duration;
             });
         yield AssociationField::new('updateCertification', 'Certificazione di aggionamento');

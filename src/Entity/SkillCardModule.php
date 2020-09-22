@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity(repositoryClass=SkillCardModulesRepository::class)
  */
-class SkillCardModules
+class SkillCardModule
 {
     /**
      * @ORM\Id
@@ -26,7 +26,7 @@ class SkillCardModules
     private $skillCard;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Module::class)
+     * @ORM\ManyToOne(targetEntity=CertificationModule::class)
      * @ORM\JoinColumn(nullable=false)
      */
     private $module;
@@ -63,12 +63,12 @@ class SkillCardModules
         return $this;
     }
 
-    public function getModule(): ?Module
+    public function getModule(): ?CertificationModule
     {
         return $this->module;
     }
 
-    public function setModule(?Module $module): self
+    public function setModule(?CertificationModule $module): self
     {
         $this->module = $module;
 

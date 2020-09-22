@@ -4,21 +4,21 @@ namespace App\Repository;
 
 use App\Entity\Module;
 use App\Entity\SkillCard;
-use App\Entity\SkillCardModules;
+use App\Entity\SkillCardModule;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method SkillCardModules|null find($id, $lockMode = null, $lockVersion = null)
- * @method SkillCardModules|null findOneBy(array $criteria, array $orderBy = null)
- * @method SkillCardModules[]    findAll()
- * @method SkillCardModules[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method SkillCardModule|null find($id, $lockMode = null, $lockVersion = null)
+ * @method SkillCardModule|null findOneBy(array $criteria, array $orderBy = null)
+ * @method SkillCardModule[]    findAll()
+ * @method SkillCardModule[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class SkillCardModulesRepository extends ServiceEntityRepository
+class SkillCardModuleRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, SkillCardModules::class);
+        parent::__construct($registry, SkillCardModule::class);
     }
 
     public function getBySkillCardAndModule(SkillCard $skillCard, Module $module)
@@ -33,7 +33,7 @@ class SkillCardModulesRepository extends ServiceEntityRepository
     }
 
     // /**
-    //  * @return SkillCardModules[] Returns an array of SkillCardModules objects
+    //  * @return SkillCardModule[] Returns an array of SkillCardModule objects
     //  */
     /*
     public function findByExampleField($value)
@@ -50,7 +50,7 @@ class SkillCardModulesRepository extends ServiceEntityRepository
     */
 
     /*
-    public function findOneBySomeField($value): ?SkillCardModules
+    public function findOneBySomeField($value): ?SkillCardModule
     {
         return $this->createQueryBuilder('s')
             ->andWhere('s.exampleField = :val')

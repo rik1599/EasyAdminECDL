@@ -18,19 +18,19 @@ class Booking
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity=SkillCard::class)
+     * @ORM\ManyToOne(targetEntity=SkillCard::class, inversedBy="bookings")
      * @ORM\JoinColumn(nullable=false)
      */
     private $skillCard;
 
     /**
-     * @ORM\ManyToOne(targetEntity=SkillCardModules::class, inversedBy="bookings")
+     * @ORM\ManyToOne(targetEntity=SkillCardModule::class, inversedBy="bookings")
      * @ORM\JoinColumn(nullable=false)
      */
     private $module;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Session::class)
+     * @ORM\ManyToOne(targetEntity=Session::class, inversedBy="bookings")
      * @ORM\JoinColumn(nullable=false)
      */
     private $session;
@@ -67,12 +67,12 @@ class Booking
         return $this;
     }
 
-    public function getModule(): ?SkillCardModules
+    public function getModule(): ?SkillCardModule
     {
         return $this->module;
     }
 
-    public function setModule(?SkillCardModules $module): self
+    public function setModule(?SkillCardModule $module): self
     {
         $this->module = $module;
 
