@@ -1,14 +1,13 @@
 <?php
 
-namespace App\Controller\Admin\Crud;
+namespace App\Controller\Admin;
 
 use App\Entity\CertificationModule;
-use App\Entity\Module;
 use App\Entity\SkillCard;
 use App\Entity\SkillCardModule;
 use App\Enum\EnumSkillCard;
 use App\Form\SkillCardModuleType;
-use App\Repository\ModuleRepository;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -16,14 +15,13 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-use Symfony\Component\Form\Extension\Core\Type\CollectionType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\HttpFoundation\Request;
+use EasyCorp\Bundle\EasyAdminBundle\Provider\AdminContextProvider;
+use InvalidArgumentException;
 
 class SkillCardCrudController extends AbstractCrudController
 {
@@ -33,10 +31,7 @@ class SkillCardCrudController extends AbstractCrudController
     }
 
     public function configureActions(Actions $actions): Actions
-    {   
-        $modules = Action::new('Scegli esami')
-            ->linkToCrudAction('chooseModules');
-
+    {
         $update = Action::new('Rinnova')
             ->displayIf(static function (SkillCard $skillCard) {
                 return !is_null($skillCard->getCertification()->getUpdateCertification());
@@ -46,8 +41,6 @@ class SkillCardCrudController extends AbstractCrudController
         return $actions
             ->add(Crud::PAGE_INDEX, $update)
             ->add(Crud::PAGE_DETAIL, $update)
-            ->add(Crud::PAGE_INDEX, $modules)
-            ->add(Crud::PAGE_DETAIL, $modules)
             ->add(Crud::PAGE_INDEX, Action::DETAIL);
     }
 
@@ -56,16 +49,30 @@ class SkillCardCrudController extends AbstractCrudController
         yield IdField::new('id')->hideOnForm();
         yield TextField::new('number', 'Numero');
         yield AssociationField::new('student', 'Email studente');
-        
-        if ($pageName !== Crud::PAGE_EDIT) {
-            yield AssociationField::new('certification', 'Certificazione');
-        }
-        
+        yield AssociationField::new('certification', 'Certificazione');
         yield IntegerField::new('credits', 'Crediti');
         yield DateField::new('expiresAt', 'Data scadenza')
             ->setHelp('Se non inserito verrà eventualmente usata la data odierna più la durata del certificazione scelta');
         yield TextField::new('status')
             ->hideOnForm();
+
+        if ($pageName === Crud::PAGE_EDIT) {
+            $adminContext = $this->get(AdminContextProvider::class)->getContext();
+
+            /** @var SkillCard $skillCard */
+            $skillCard = $adminContext->getEntity()->getInstance();
+            yield CollectionField::new('skillCardModules', 'Esami')
+                ->setFormTypeOptions([
+                    'entry_type' => SkillCardModuleType::class,
+                    'by_reference' => false,
+                    'allow_delete' => true,
+                    'entry_options' => [
+                        'certification' => $skillCard->getCertification(),
+                        'label' => false,
+                    ],
+                    'row_attr' => ['class' => 'form-inline']
+                ]);
+        }
     }
 
     /**
@@ -76,19 +83,11 @@ class SkillCardCrudController extends AbstractCrudController
     {
         if (!$entityInstance->getCertification()->hasExpiry() && is_null($entityInstance->getExpiresAt())) {
             $entityInstance->setExpiresAt(
-                (new \DateTime())->add($entityInstance->getCertification()->getDuration())
+                (new DateTime())->add($entityInstance->getCertification()->getDuration())
             );
         }
 
-        $cmRepo = $this->getDoctrine()->getRepository(CertificationModule::class);
-        $mandatoryModules = $cmRepo->findByCertification($entityInstance->getCertification(), true);
-        foreach ($mandatoryModules as $module) {
-            $entityInstance->addSkillCardModule(
-                (new SkillCardModule())
-                    ->setModule($module)
-                    ->setIsPassed(false)
-            );
-        }
+        $this->addMandatoryModules($entityInstance);
 
         $entityInstance->setStatus(EnumSkillCard::ACTIVATED);
         parent::persistEntity($entityManager, $entityInstance);
@@ -96,11 +95,6 @@ class SkillCardCrudController extends AbstractCrudController
 
     public function renovateSkillCard(AdminContext $adminContext)
     {
-        /*
-            TODO: in fase di rinnovo aggiungere gli esami della nuova certificazione (se non sono già presenti nel portfolio)
-            Se questi sono già presenti nel portfolio, allora impostare il campo isPassed come false
-        */
-
         /** @var SkillCard */
         $skillCard = $adminContext->getEntity()->getInstance();
         $updateCert = $skillCard->getCertification()->getUpdateCertification();
@@ -108,6 +102,7 @@ class SkillCardCrudController extends AbstractCrudController
         switch ($skillCard->getStatus()) {
             case EnumSkillCard::ACTIVATED:
                 $skillCard->setStatus(EnumSkillCard::UPDATING);
+                $this->addMandatoryModules($skillCard);
                 break;
             
             case EnumSkillCard::UPDATING:
@@ -115,54 +110,36 @@ class SkillCardCrudController extends AbstractCrudController
                 break;
 
             default:
-                throw new \Exception("Stato SkillCard non valido");
+                throw new InvalidArgumentException("Stato SkillCard non valido");
         }
 
 
-        /** @var \DateTime */
-        $oldExpiry = $skillCard->getExpiresAt();
-        if (!is_null($updateCert->getDuration()) && $oldExpiry instanceof \DateTime) {
-            $newExpiry = \DateTimeImmutable::createFromMutable($oldExpiry->add($updateCert->getDuration()));
+        /** @var DateTime */
+        $oldExpiry = clone ($skillCard->getExpiresAt());
+        if (!is_null($updateCert->getDuration()) && $oldExpiry instanceof DateTime) {
+            $newExpiry = clone ($oldExpiry->add($updateCert->getDuration()));
             $skillCard->setExpiresAt($newExpiry);
         }
-        $this->getDoctrine()->getManager()->flush();
-        return $this->redirect($adminContext->getReferrer());
+        //$this->getDoctrine()->getManager()->flush();
+        //return $this->redirect($adminContext->getReferrer());
     }
 
-    public function chooseModules(Request $request, AdminContext $adminContext)
+    protected function addMandatoryModules(SkillCard $skillCard)
     {
-        /** @var SkillCard */
-        $skillCard = $adminContext->getEntity()->getInstance();
+        /*
+         * TODO: in fase di rinnovo aggiungere gli esami della nuova certificazione (se non sono già presenti nel portfolio)
+         * Se questi sono già presenti nel portfolio, allora impostare il campo isPassed come false
+        */
+        $cmRepo = $this->getDoctrine()->getRepository(CertificationModule::class);
+        $mandatoryModules = $cmRepo->findByCertification($skillCard->getCertification(), true);
+        $modules = $skillCard->getSkillCardModules()->getValues();
 
-        $form = $this->createModulesForm($skillCard);
-
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->getDoctrine()->getManager()->flush();
-            $this->addFlash('success', 'Esami impostati correttamente');
-            return $this->redirect($adminContext->getReferrer());
+        foreach ($mandatoryModules as $module) {
+            $skillCard->addSkillCardModule(
+                (new SkillCardModule())
+                    ->setModule($module)
+                    ->setIsPassed(false)
+            );
         }
-
-        return $this->render('customForm.html.twig', [
-            'title' => 'Imposta gli esami',
-            'ea' => $adminContext,
-            'form' => $form->createView(),
-        ]);
-    }
-
-    protected function createModulesForm(SkillCard $skillCard)
-    {   
-        return $this->createFormBuilder($skillCard)
-            ->add('skillCardModules', CollectionType::class, [
-                'label' => false,
-                'entry_type' => SkillCardModuleType::class,
-                'entry_options' => ['certification' => $skillCard->getCertification(), 'label' => false],
-                'by_reference' => false,
-                'allow_delete' => true,
-                'allow_add' => true,
-                'row_attr' => ['class' => 'form-inline']
-            ])
-            ->add('save', SubmitType::class)
-            ->getForm();
     }
 }

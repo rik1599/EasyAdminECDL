@@ -7,6 +7,7 @@ use App\Entity\SkillCardModule;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -24,6 +25,10 @@ class SkillCardModuleType extends AbstractType
                         ->where("cm.certification = :cId")
                         ->setParameter('cId', $options['certification']->getId());
                 }
+            ])
+            ->add('isPassed', CheckboxType::class, [
+                'label' => 'Già superato?',
+                'required' => false
             ])
         ;
     }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Admin\Crud;
+namespace App\Controller\Admin;
 
 use App\Entity\Certification;
 use App\Field\DateIntervalField;

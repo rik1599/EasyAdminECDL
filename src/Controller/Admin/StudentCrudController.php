@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Admin\Crud;
+namespace App\Controller\Admin;
 
 use App\Entity\Student;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
