@@ -7,6 +7,8 @@ use App\Entity\SkillCard;
 use App\Entity\SkillCardModule;
 use App\Enum\EnumSkillCard;
 use App\Form\SkillCardModuleType;
+use App\Repository\CertificationModuleRepository;
+use App\Repository\SkillCardModuleRepository;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -120,26 +122,34 @@ class SkillCardCrudController extends AbstractCrudController
             $newExpiry = clone ($oldExpiry->add($updateCert->getDuration()));
             $skillCard->setExpiresAt($newExpiry);
         }
-        //$this->getDoctrine()->getManager()->flush();
-        //return $this->redirect($adminContext->getReferrer());
+        $this->getDoctrine()->getManager()->flush();
+        return $this->redirect($adminContext->getReferrer());
     }
 
     protected function addMandatoryModules(SkillCard $skillCard)
     {
-        /*
-         * TODO: in fase di rinnovo aggiungere gli esami della nuova certificazione (se non sono già presenti nel portfolio)
-         * Se questi sono già presenti nel portfolio, allora impostare il campo isPassed come false
-        */
+        /** @var CertificationModuleRepository */
         $cmRepo = $this->getDoctrine()->getRepository(CertificationModule::class);
         $mandatoryModules = $cmRepo->findByCertification($skillCard->getCertification(), true);
-        $modules = $skillCard->getSkillCardModules()->getValues();
+
+        /** @var SkillCardModuleRepository */
+        $smRepo = $this->getDoctrine()->getRepository(SkillCardModule::class);
 
         foreach ($mandatoryModules as $module) {
-            $skillCard->addSkillCardModule(
-                (new SkillCardModule())
-                    ->setModule($module)
-                    ->setIsPassed(false)
-            );
+            $skillCardModule = $smRepo->findOneBy([
+                'skillCard' => $skillCard->getId(),
+                'module' => $module->getId()
+            ]);
+
+            if (is_null($skillCardModule)) {
+                $skillCard->addSkillCardModule(
+                    (new SkillCardModule())
+                        ->setModule($module)
+                        ->setIsPassed(false)
+                );
+            } else {
+                $skillCardModule->setIsPassed(false);
+            }
         }
     }
 }

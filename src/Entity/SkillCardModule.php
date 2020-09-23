@@ -2,13 +2,13 @@
 
 namespace App\Entity;
 
-use App\Repository\SkillCardModulesRepository;
+use App\Repository\SkillCardModuleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass=SkillCardModulesRepository::class)
+ * @ORM\Entity(repositoryClass=SkillCardModuleRepository::class)
  */
 class SkillCardModule
 {
