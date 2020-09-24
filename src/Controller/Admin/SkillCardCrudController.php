@@ -59,18 +59,27 @@ class SkillCardCrudController extends AbstractCrudController
             ->hideOnForm();
 
         if ($pageName === Crud::PAGE_EDIT) {
+            /** @var AdminContext */
             $adminContext = $this->get(AdminContextProvider::class)->getContext();
-
             /** @var SkillCard $skillCard */
             $skillCard = $adminContext->getEntity()->getInstance();
+
+            $choices = array_map(function (SkillCardModule $skillCardModule) {
+                return $skillCardModule->getModule();
+            }, $skillCard->getSkillCardModules()->getValues());
+
+            $choices = array_merge($choices, $this->getDoctrine()->getRepository(CertificationModule::class)->findBy([
+                'certification' => $skillCard->getCertification()->getId()
+            ]));
+
             yield CollectionField::new('skillCardModules', 'Esami')
                 ->setFormTypeOptions([
                     'entry_type' => SkillCardModuleType::class,
                     'by_reference' => false,
                     'allow_delete' => true,
                     'entry_options' => [
-                        'certification' => $skillCard->getCertification(),
                         'label' => false,
+                        'choices' => $choices
                     ],
                     'row_attr' => ['class' => 'form-inline']
                 ]);

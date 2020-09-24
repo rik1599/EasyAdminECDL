@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\CertificationModule;
 use App\Entity\SkillCardModule;
+use App\Repository\CertificationModuleRepository;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -13,6 +14,13 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class SkillCardModuleType extends AbstractType
 {
+    /** @var CertificationModuleRepository */
+    private $certificationModuleRepository;
+
+    public function __construct(CertificationModuleRepository $certificationModuleRepository) {
+        $this->certificationModuleRepository = $certificationModuleRepository;
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
@@ -20,11 +28,7 @@ class SkillCardModuleType extends AbstractType
                 'label' => false,
                 'class' => CertificationModule::class,
                 'choice_label' => "module.nome",
-                'query_builder' => function (EntityRepository $er) use ($options) {
-                    return $er->createQueryBuilder('cm')
-                        ->where("cm.certification = :cId")
-                        ->setParameter('cId', $options['certification']->getId());
-                }
+                'choices' => $options['choices']
             ])
             ->add('isPassed', CheckboxType::class, [
                 'label' => 'Già superato?',
@@ -39,7 +43,7 @@ class SkillCardModuleType extends AbstractType
             'data_class' => SkillCardModule::class,
         ]);
         $resolver->setRequired([
-            'certification'
+            'choices'
         ]);
     }
 }

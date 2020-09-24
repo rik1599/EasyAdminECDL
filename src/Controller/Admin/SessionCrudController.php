@@ -33,7 +33,7 @@ class SessionCrudController extends AbstractCrudController
     {
         return Session::class;
     }
-    
+
     public function configureActions(Actions $actions): Actions
     {
         $cancelSessionAction = Action::new('cancelSession', 'Annulla sessione')
