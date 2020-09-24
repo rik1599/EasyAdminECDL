@@ -3,6 +3,7 @@
 namespace App\Form;
 
 use App\Entity\CertificationModule;
+use App\Entity\SkillCard;
 use App\Entity\SkillCardModule;
 use App\Repository\CertificationModuleRepository;
 use Doctrine\ORM\EntityRepository;
@@ -23,12 +24,23 @@ class SkillCardModuleType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        /** @var SkillCard */
+        $skillCard = $options['skillCard'];
+        $choices = array_map(function (SkillCardModule $skillCardModule) {
+            return $skillCardModule->getModule();
+        }, $skillCard->getSkillCardModules()->getValues());
+
+        $choices = array_merge($choices, $this->certificationModuleRepository->findBy([
+            'certification' => $skillCard->getCertification()->getId()
+        ]));
+
+
         $builder
             ->add('module', EntityType::class, [
                 'label' => false,
                 'class' => CertificationModule::class,
                 'choice_label' => "module.nome",
-                'choices' => $options['choices']
+                'choices' => $choices
             ])
             ->add('isPassed', CheckboxType::class, [
                 'label' => 'Già superato?',
@@ -43,7 +55,7 @@ class SkillCardModuleType extends AbstractType
             'data_class' => SkillCardModule::class,
         ]);
         $resolver->setRequired([
-            'choices'
+            'skillCard'
         ]);
     }
 }

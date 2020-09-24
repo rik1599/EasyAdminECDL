@@ -49,6 +49,9 @@ class NoticeCrudController extends AbstractCrudController
         yield TextareaField::new('text', 'Testo')->hideOnIndex();
     }
 
+    /**
+     * Set current user as author of the notice and set current datetime as creation datetime
+     */
     public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
     {
         /** @var Notice $entityInstance */
@@ -57,6 +60,9 @@ class NoticeCrudController extends AbstractCrudController
         parent::persistEntity($entityManager, $entityInstance);
     }
 
+    /**
+     * If you update a notice, set current datetime as creation datetime
+     */
     public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
     {
         $this->setNoticeDate($entityInstance);

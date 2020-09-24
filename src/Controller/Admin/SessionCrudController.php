@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\Session;
 use App\Enum\EnumSessionStatus;
 use App\Enum\EnumSessionType;
+use DateInterval;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -15,7 +16,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -51,6 +51,7 @@ class SessionCrudController extends AbstractCrudController
     {
         yield IdField::new('id')->hideOnForm();
 
+        /* If you are creating new session, set default value as current datetime */
         $dateTimeField = DateTimeField::new('datetime', 'Data e ora della sessione')
             ->renderAsChoice(true);
         if ($pageName === Crud::PAGE_NEW) {
@@ -63,7 +64,6 @@ class SessionCrudController extends AbstractCrudController
             ->setHelp("Se ometti questo campo, di default verranno calcolati 7 giorni prima della data dell'esame");
         yield IntegerField::new('rounds', 'Numero turni');
 
-        //yield FormField::addPanel('Prova');
         yield AssociationField::new('certification', 'Certificazione')
             ->setRequired(true);
         yield ChoiceField::new('type', 'Tipo sessione')
@@ -88,6 +88,11 @@ class SessionCrudController extends AbstractCrudController
         parent::updateEntity($entityManager, $entityInstance);
     }
 
+    /**
+     * If subscribe expiry date is null, set subscribe expiry date
+     * @param Session $session - the session to calculate subscribe expiry date
+     * @param DateInterval $dateInterval - time interval to subtrack to session datetime
+     */
     private function setExpiryDate(Session $session, \DateInterval $dateInterval)
     {
         if (is_null($session->getSubscribeExpireDate())) {
@@ -98,6 +103,10 @@ class SessionCrudController extends AbstractCrudController
         }
     }
 
+    /**
+     * Cancel the given session
+     * @param AdminContext $adminContext - the context to extract the session
+     */
     public function cancelSession(AdminContext $adminContext)
     {
         /** @var Session */

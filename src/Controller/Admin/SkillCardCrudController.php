@@ -64,14 +64,6 @@ class SkillCardCrudController extends AbstractCrudController
             /** @var SkillCard $skillCard */
             $skillCard = $adminContext->getEntity()->getInstance();
 
-            $choices = array_map(function (SkillCardModule $skillCardModule) {
-                return $skillCardModule->getModule();
-            }, $skillCard->getSkillCardModules()->getValues());
-
-            $choices = array_merge($choices, $this->getDoctrine()->getRepository(CertificationModule::class)->findBy([
-                'certification' => $skillCard->getCertification()->getId()
-            ]));
-
             yield CollectionField::new('skillCardModules', 'Esami')
                 ->setFormTypeOptions([
                     'entry_type' => SkillCardModuleType::class,
@@ -79,7 +71,7 @@ class SkillCardCrudController extends AbstractCrudController
                     'allow_delete' => true,
                     'entry_options' => [
                         'label' => false,
-                        'choices' => $choices
+                        'skillCard' => $skillCard
                     ],
                     'row_attr' => ['class' => 'form-inline']
                 ]);
@@ -87,6 +79,8 @@ class SkillCardCrudController extends AbstractCrudController
     }
 
     /**
+     * If skillCard expiry date is null and its certification has expiry, set current datetime + certification duration
+     * as skillCard expire date
      * @param EntityManagerInterface $entityManager
      * @param SkillCard $entityInstance
      */
@@ -104,6 +98,7 @@ class SkillCardCrudController extends AbstractCrudController
         parent::persistEntity($entityManager, $entityInstance);
     }
 
+    
     public function renovateSkillCard(AdminContext $adminContext)
     {
         /** @var SkillCard */

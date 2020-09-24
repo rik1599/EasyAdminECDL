@@ -35,7 +35,6 @@ class StudentDashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Avvisi', 'fa fa-bullhorn', Notice::class);
 
         yield MenuItem::section('Gestione esami');
-        //yield MenuItem::linktoRoute('Prenota esame', 'fa fa-edit', 'bookings');
         yield MenuItem::linkToCrud('Prenota esame', 'fa fa-edit', Booking::class);
     }
 

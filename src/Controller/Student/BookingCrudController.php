@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Student\Crud;
+namespace App\Controller\Student;
 
 use App\Entity\Booking;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
