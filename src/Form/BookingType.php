@@ -90,6 +90,7 @@ class BookingType extends AbstractType
     }
 
     protected function formModifierBySession(FormInterface $form, Session $session = null) {
+        $options = is_null($session) ? [] : range(0, $session->getRounds());
         $form->add('turn', ChoiceType::class, [
             'choices' => is_null($session) ? [] : range(0, $session->getRounds()),
         ]);
