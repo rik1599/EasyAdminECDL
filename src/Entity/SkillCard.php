@@ -215,4 +215,11 @@ class SkillCard
 
         return $this;
     }
+
+    public function getSkillCardModulesNotPassed() : Collection
+    {
+        return $this->getSkillCardModules()->filter(function (SkillCardModule $skillCardModule) {
+            return !$skillCardModule->getIsPassed();
+        });
+    }
 }
