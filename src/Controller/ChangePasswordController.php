@@ -9,7 +9,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ChangePasswordController extends AbstractController
@@ -23,6 +25,10 @@ class ChangePasswordController extends AbstractController
 
     /**
      * @Route("change-password", name="change_password")
+     * Create and handle the form to change user password
+     * @param AdminContext $adminContext - current context
+     * @param Request $request - current http request
+     * @return Response|RedirectResponse - render the form or redirect to home 
      */
     public function changePasswordLoginForm(AdminContext $adminContext, Request $request)
     {

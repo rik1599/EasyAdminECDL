@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Service\UserSecurityService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
@@ -20,10 +21,12 @@ class LoginController extends AbstractController
 
     /**
      * @Route("/", name="home")
+     * Redirections to Dashboards home pages
+     * @return RedirectResponse
      */
     public function home()
     {
-        /** @var \App\Entity\User $user */
+        /** @var User $user */
         if ($user = $this->getUser()) {
             $role = $user->getRole();
             $this->userSecurityService->lastAccess($user);
@@ -51,13 +54,12 @@ class LoginController extends AbstractController
 
     /**
      * @Route("/login", name="app_login")
+     * Login form
+     * @param AuthenticationUtils $authenticationUtils - the authenticator service
+     * @return Response login page view
      */
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
-        // if ($this->getUser()) {
-        //     return $this->redirectToRoute('target_path');
-        // }
-
         // get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();
         // last username entered by the user
