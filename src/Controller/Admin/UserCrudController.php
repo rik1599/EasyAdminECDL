@@ -108,6 +108,7 @@ class UserCrudController extends AbstractCrudController
         $submitButtonName = isset($context->getRequest()->request->get('ea')['newForm']['btn']) ? 
             $context->getRequest()->request->get('ea')['newForm']['btn'] : null;
 
+        //Redirect to student anagraphic
         /** @var User */
         $user = $context->getEntity()->getInstance();
         if (!is_null($submitButtonName) && !is_null($user->getStudent()) &&

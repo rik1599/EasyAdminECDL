@@ -24,6 +24,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Provider\AdminContextProvider;
 use InvalidArgumentException;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class SkillCardCrudController extends AbstractCrudController
 {
@@ -98,7 +99,14 @@ class SkillCardCrudController extends AbstractCrudController
         parent::persistEntity($entityManager, $entityInstance);
     }
 
-    
+    /**
+     * Renovate the skillcard inside the current Context
+     * If the skillCard is activated, it passes to updating state and the certification modules are added to the skillCard
+     * or if they are already present, they are resetted.
+     * If the skillCard is in updating state, it only return to activated state
+     * @param AdminContext $adminContext - the current context
+     * @return RedirectResponse - redirection to $adminContext referrer link
+     */
     public function renovateSkillCard(AdminContext $adminContext)
     {
         /** @var SkillCard */
