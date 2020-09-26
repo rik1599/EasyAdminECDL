@@ -67,7 +67,7 @@ class BookingCrudController extends AbstractCrudController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $x = 1;
+            dump($booking);
         }
         
         $adminContext->getAssets()->addJsFile('js/bookingFormModifier.js');
