@@ -3,7 +3,9 @@
 namespace App\Controller\Student;
 
 use App\Entity\Booking;
+use App\Entity\CertificationModule;
 use App\Entity\User;
+use App\Enum\EnumBookingStatus;
 use App\Form\BookingType;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
@@ -50,10 +52,14 @@ class BookingCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new('id')->hideOnForm();
-        yield AssociationField::new('skillCard', false)->hideOnForm();
+        yield AssociationField::new('skillCard')->hideOnForm();
         yield AssociationField::new('session')->hideOnForm();
-        yield AssociationField::new('module')->hideOnForm();
-        yield IntegerField::new('round')->hideOnForm();
+        yield AssociationField::new('module')
+            ->hideOnForm()
+            ->formatValue(function ($value, Booking $booking) {
+                return $booking->getModule()->getModule()->getModule()->getNome();
+            });
+        yield IntegerField::new('turn')->hideOnForm();
     }
     
     public function booking(AdminContext $adminContext, Request $request)
@@ -67,7 +73,21 @@ class BookingCrudController extends AbstractCrudController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            dump($booking);
+            $booking->setStatus(EnumBookingStatus::SUBSCRIBED);
+            $skillCard = $booking->getSkillCard();
+            $credits = $skillCard->getCredits();
+            if ($credits == 0) {
+                $this->addFlash('warning', 'Hai finito i crediti della tua skill card, la tua prenotazione dovrà essere approvata da un amministratore');
+                $booking->setIsApproved(false);
+            } else {
+                $this->addFlash('success', 'Prenotazione inserita correttamente');
+                $skillCard->setCredits($credits--);
+                $booking->setIsApproved(true);
+            }
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($booking);
+            $this->getDoctrine()->getManager()->flush();
+            return $this->redirect($adminContext->getReferrer());
         }
         
         $adminContext->getAssets()->addJsFile('js/bookingFormModifier.js');
