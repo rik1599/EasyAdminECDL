@@ -2,28 +2,36 @@ $(document).ready(function () {
     const $skillCard = $('#booking_skillCard');
     const $form = $('form[name = "booking"]');
 
+    const sessionField = function () {
+        const $session = $('#booking_session');
+
+        $session.change(function () {
+            const data = Object.assign(
+                catchFieldValue($skillCard),
+                catchFieldValue($session)
+            );
+            sendAjax($form, data, function (html) {
+                replaceFormField('#booking_turn', html);
+            });
+        });
+    };
+
     $skillCard.change(function () {
-        sendAjax($skillCard, $form, function (html) {
+        sendAjax($form, catchFieldValue($skillCard), function (html) {
             replaceFormField('#booking_module', html);
             replaceFormField('#booking_session', html);
-            sessionField($form);
+            sessionField();
         });
     });
 });
 
-function sessionField($form) {
-    const $session = $('#booking_session');
-    $session.change(function () {
-        sendAjax($session, $form, function (html) {
-            replaceFormField('#booking_turn', html);
-        });
-    });
-}
-
-function sendAjax($jObj, $form, successCallBack) {
+function catchFieldValue($jObj) {
     let data = {};
     data[$jObj.attr('name')] = $jObj.val();
-    console.log($form);
+    return data;
+}
+
+function sendAjax($form, data, successCallBack) {
     $.ajax({
         url: $form.prop('action'),
         type: $form.prop('method'),

@@ -51,7 +51,20 @@ class BookingType extends AbstractType
                 $data = $formEvent->getData();
                 $this->formModifierBySkillCard($formEvent->getForm(), $data->getSkillCard());
                 $this->addSessionField($formEvent->getForm(), $data->getSkillCard());
-                $this->formModifierBySession($formEvent->getForm(), $data->getSession());
+            }
+        );
+
+        $builder->addEventListener(
+            FormEvents::PRE_SUBMIT,
+            function (FormEvent $formEvent) {
+                $data = $formEvent->getData();
+                $form = $formEvent->getForm();
+
+                if (!isset($data['skillCard'])) {
+                    return;
+                }
+                $skillCardID = $data['skillCard'];
+                $this->addSessionField($form, $this->skillCardRepository->find($skillCardID));
             }
         );
 
@@ -97,12 +110,21 @@ class BookingType extends AbstractType
         ]);
 
         $builder->addEventListener(
+            FormEvents::PRE_SET_DATA,
+            function (FormEvent $formEvent) {
+                $session = $formEvent->getData();
+                $this->formModifierBySession($formEvent->getForm()->getParent(), $session);
+            }
+        );
+
+        $builder->addEventListener(
             FormEvents::POST_SUBMIT,
             function (FormEvent $formEvent) {
                 $session = $formEvent->getForm()->getData();
                 $this->formModifierBySession($formEvent->getForm()->getParent(), $session);
             }
         );
+        
         $form->add($builder->getForm());
     }
 
