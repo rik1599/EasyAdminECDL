@@ -8,8 +8,11 @@ use App\Entity\SkillCard;
 use App\Entity\SkillCardModule;
 use App\Entity\Student;
 use App\Enum\EnumSkillCard;
+use App\Repository\BookingRepository;
 use App\Repository\SkillCardRepository;
+use DateInterval;
 use DateTime;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -26,8 +29,13 @@ class BookingType extends AbstractType
     /** @var SkillCardRepository */
     private $skillCardRepository;
 
-    public function __construct(SkillCardRepository $skillCardRepository) {
+    /** @var BookingRepository */
+    private $bookingRepository;
+
+    public function __construct(SkillCardRepository $skillCardRepository, BookingRepository $bookingRepository)
+    {
         $this->skillCardRepository = $skillCardRepository;
+        $this->bookingRepository = $bookingRepository;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -111,31 +119,42 @@ class BookingType extends AbstractType
 
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
-            function (FormEvent $formEvent) {
+            function (FormEvent $formEvent) use ($skillCard) {
                 $session = $formEvent->getData();
-                $this->formModifierBySession($formEvent->getForm()->getParent(), $session);
+                $this->formModifierBySession($formEvent->getForm()->getParent(), $session, $skillCard);
             }
         );
 
         $builder->addEventListener(
             FormEvents::POST_SUBMIT,
-            function (FormEvent $formEvent) {
+            function (FormEvent $formEvent) use ($skillCard) {
                 $session = $formEvent->getForm()->getData();
-                $this->formModifierBySession($formEvent->getForm()->getParent(), $session);
+                $this->formModifierBySession($formEvent->getForm()->getParent(), $session, $skillCard);
             }
         );
-        
+
         $form->add($builder->getForm());
     }
 
-    protected function formModifierBySession(FormInterface $form, Session $session = null)
+    protected function formModifierBySession(FormInterface $form, Session $session = null, SkillCard $skillCard = null)
     {
-        $turns = [];
-        for ($i=0; $i < $session->getRounds(); $i++) { 
-            
+        $dateTimeTurns = [];
+        if (!is_null($session) && !is_null($skillCard)) {
+            $turns = $this->bookingRepository->getBookedTurnInSession($session, $skillCard);
+            $availableTurns = array_diff(range(0, $session->getRounds()), $turns);
+
+            $dateTimeTurns = [];
+            /** @var DateTimeImmutable */
+            $timeTurn = DateTimeImmutable::createFromMutable($session->getDatetime());
+
+            foreach ($availableTurns as $turn) {
+                $addedInterval = new DateInterval("PT" . $turn . "H");
+                $dateTimeTurns[$timeTurn->add($addedInterval)->format('H:i')] = $turn;
+            }
         }
+
         $form->add('turn', ChoiceType::class, [
-            'choices' => is_null($session) ? [] : range(0, $session->getRounds()),
+            'choices' => $dateTimeTurns,
         ]);
     }
 

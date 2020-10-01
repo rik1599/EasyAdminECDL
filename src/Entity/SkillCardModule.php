@@ -32,9 +32,9 @@ class SkillCardModule
     private $module;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="string", length=16)
      */
-    private $isPassed;
+    private $status;
 
     /**
      * @ORM\OneToMany(targetEntity=Booking::class, mappedBy="module", orphanRemoval=true)
@@ -75,14 +75,14 @@ class SkillCardModule
         return $this;
     }
 
-    public function getIsPassed(): ?bool
+    public function getStatus(): ?string
     {
-        return $this->isPassed;
+        return $this->status;
     }
 
-    public function setIsPassed(bool $isPassed): self
+    public function setStatus(string $status): self
     {
-        $this->isPassed = $isPassed;
+        $this->status = $status;
 
         return $this;
     }

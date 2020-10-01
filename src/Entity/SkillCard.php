@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\EnumSkillcardModule;
 use App\Repository\SkillCardRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -219,7 +220,7 @@ class SkillCard
     public function getSkillCardModulesNotPassed() : Collection
     {
         return $this->getSkillCardModules()->filter(function (SkillCardModule $skillCardModule) {
-            return !$skillCardModule->getIsPassed();
+            return $skillCardModule->getStatus() == EnumSkillcardModule::UNPASSED;
         });
     }
 }

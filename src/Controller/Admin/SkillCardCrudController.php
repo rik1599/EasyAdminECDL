@@ -6,6 +6,7 @@ use App\Entity\CertificationModule;
 use App\Entity\SkillCard;
 use App\Entity\SkillCardModule;
 use App\Enum\EnumSkillCard;
+use App\Enum\EnumSkillcardModule;
 use App\Form\SkillCardModuleType;
 use App\Repository\CertificationModuleRepository;
 use App\Repository\SkillCardModuleRepository;
@@ -157,10 +158,10 @@ class SkillCardCrudController extends AbstractCrudController
                 $skillCard->addSkillCardModule(
                     (new SkillCardModule())
                         ->setModule($module)
-                        ->setIsPassed(false)
+                        ->setStatus(EnumSkillcardModule::UNPASSED)
                 );
             } else {
-                $skillCardModule->setIsPassed(false);
+                $skillCardModule->setStatus(EnumSkillcardModule::UNPASSED);
             }
         }
     }

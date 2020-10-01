@@ -20,6 +20,7 @@ $(document).ready(function () {
         sendAjax($form, catchFieldValue($skillCard), function (html) {
             replaceFormField('#booking_module', html);
             replaceFormField('#booking_session', html);
+            $('#booking_turn').find('option').remove().end();
             sessionField();
         });
     });
