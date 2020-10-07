@@ -3,6 +3,8 @@
 namespace App\Controller\Student;
 
 use App\Entity\Booking;
+use App\Entity\SkillCard;
+use App\Entity\Student;
 use App\Entity\User;
 use App\Enum\EnumBookingStatus;
 use App\Enum\EnumSkillcardModule;
@@ -23,9 +25,9 @@ use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Provider\AdminContextProvider;
 use Symfony\Component\HttpFoundation\Request;
-
-use function Complex\sec;
 
 class BookingCrudController extends AbstractCrudController
 {
@@ -45,25 +47,36 @@ class BookingCrudController extends AbstractCrudController
     }
 
     public function createIndexQueryBuilder(SearchDto $searchDto, EntityDto $entityDto, FieldCollection $fields, FilterCollection $filters): QueryBuilder
-    {
-        /** @var Booking */
-        $booking = $entityDto->getInstance();
-        dump($searchDto);
-        dump($booking);
-        dump($fields);
-        dump($filters);
-        return parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters);
+    {   
+        $qb = parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters);
+        /** @var AdminContext */
+        $adminContext = $this->get(AdminContextProvider::class)->getContext();
+
+        /** @var User */
+        $user = $adminContext->getUser();
+        $student = $user->getStudent();
+
+        $qb->andWhere($qb->expr()->in('entity.skillCard', ':sc'));
+        $qb->addOrderBy('entity.status', 'DESC');
+        $qb->setParameter('sc', $student->getSkillCards());
+        return $qb;
     }
 
     public function configureActions(Actions $actions): Actions
     {
+        $cancelBookingAction = Action::new('cancelBookingAction', 'Annulla')
+            ->linkToCrudAction('cancelBooking')
+            ->displayIf(function (Booking $booking) {
+                return $booking->getStatus() === EnumBookingStatus::SUBSCRIBED;
+            });
+
         return $actions
             ->update(Crud::PAGE_INDEX, Action::NEW, function (Action $action) {
                 return $action->linkToCrudAction('booking');
             })
-            ->update(Crud::PAGE_INDEX, Action::EDIT, function (Action $action) {
-                return $action->linkToCrudAction('booking');
-            })
+            ->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->add(Crud::PAGE_INDEX, $cancelBookingAction)
+            ->add(Crud::PAGE_DETAIL, $cancelBookingAction)
             ->disable(Action::DELETE, Action::EDIT);
     }
 
@@ -83,6 +96,7 @@ class BookingCrudController extends AbstractCrudController
                 $baseTime = DateTimeImmutable::createFromMutable($booking->getSession()->getDatetime());
                 return $baseTime->add(new DateInterval("PT" . $value . "H"))->format('H:i');
             });
+        yield TextField::new('status')->hideOnForm();
     }
 
     public function booking(AdminContext $adminContext, Request $request)
@@ -134,5 +148,20 @@ class BookingCrudController extends AbstractCrudController
         $em = $this->getDoctrine()->getManager();
         $em->persist($booking);
         $this->getDoctrine()->getManager()->flush();
+    }
+
+    public function cancelBooking(AdminContext $adminContext)
+    {
+        /** @var Booking */
+        $booking = $adminContext->getEntity()->getInstance();
+        $booking->setStatus(EnumBookingStatus::CANCELED);
+
+        /** @var SkillCard */
+        $skillCard = $booking->getSkillCard();
+        $credits = $skillCard->getCredits();
+        $skillCard->setCredits($credits++);
+
+        $this->getDoctrine()->getManager()->flush();
+        return $this->redirect($adminContext->getReferrer());
     }
 }

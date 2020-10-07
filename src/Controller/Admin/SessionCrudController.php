@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Session;
+use App\Enum\EnumRole;
 use App\Enum\EnumSessionStatus;
 use App\Enum\EnumSessionType;
 use DateInterval;
@@ -44,6 +45,7 @@ class SessionCrudController extends AbstractCrudController
         
             return $actions
                 ->add(Crud::PAGE_INDEX, $cancelSessionAction)
+                ->setPermission(Action::EDIT, EnumRole::ROLE_ADMIN)
                 ->disable(Action::DELETE);
     }
 
