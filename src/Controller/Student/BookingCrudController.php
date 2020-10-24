@@ -4,7 +4,6 @@ namespace App\Controller\Student;
 
 use App\Entity\Booking;
 use App\Entity\SkillCard;
-use App\Entity\Student;
 use App\Entity\User;
 use App\Enum\EnumBookingStatus;
 use App\Enum\EnumSkillcardModule;
@@ -56,6 +55,7 @@ class BookingCrudController extends AbstractCrudController
         $user = $adminContext->getUser();
         $student = $user->getStudent();
 
+        /* Visualizza solo le prenotazioni dell'utente */
         $qb->andWhere($qb->expr()->in('entity.skillCard', ':sc'));
         $qb->addOrderBy('entity.status', 'DESC');
         $qb->setParameter('sc', $student->getSkillCards());
