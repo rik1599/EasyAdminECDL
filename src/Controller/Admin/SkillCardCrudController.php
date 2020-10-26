@@ -52,6 +52,7 @@ class SkillCardCrudController extends AbstractCrudController
     {
         yield IdField::new('id')->hideOnForm();
         yield TextField::new('number', 'Numero');
+        yield TextField::new('skillCardOwnerName', 'Nome studente')->hideOnForm();
         yield AssociationField::new('student', 'Email studente');
         yield AssociationField::new('certification', 'Certificazione');
         yield IntegerField::new('credits', 'Crediti');

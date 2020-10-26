@@ -223,4 +223,9 @@ class SkillCard
             return $skillCardModule->getStatus() == EnumSkillcardModule::UNPASSED;
         });
     }
+
+    public function getSkillCardOwnerName() : string
+    {
+        return $this->getStudent()->getUser()->getFullName();
+    }
 }
