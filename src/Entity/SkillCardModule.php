@@ -117,4 +117,9 @@ class SkillCardModule
 
         return $this;
     }
+
+    public function __toString()
+    {
+        return $this->getModule()->getModule()->getNome();
+    }
 }

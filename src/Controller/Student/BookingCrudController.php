@@ -86,10 +86,7 @@ class BookingCrudController extends AbstractCrudController
         yield AssociationField::new('skillCard')->hideOnForm();
         yield AssociationField::new('session')->hideOnForm();
         yield AssociationField::new('module')
-            ->hideOnForm()
-            ->formatValue(function ($value, Booking $booking) {
-                return $booking->getModule()->getModule()->getModule()->getNome();
-            });
+            ->hideOnForm();
         yield IntegerField::new('turn')
             ->hideOnForm()
             ->formatValue(function ($value, Booking $booking) {
@@ -137,7 +134,7 @@ class BookingCrudController extends AbstractCrudController
         $booking->getModule()->setStatus(EnumSkillcardModule::SUBSCRIBED);
         $skillCard = $booking->getSkillCard();
         $credits = $skillCard->getCredits();
-        if ($credits == 0) {
+        if (!is_null($credits) && $credits == 0) {
             $this->addFlash('warning', 'Hai finito i crediti della tua skill card, la tua prenotazione dovrà essere approvata da un amministratore');
             $booking->setIsApproved(false);
         } else {

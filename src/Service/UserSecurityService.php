@@ -12,7 +12,7 @@ class UserSecurityService
     private $passwordEncoder;
 
     /**
-     * @param UserPasswordEncoder $userPasswordEncoderInterface - autowired password encoder defined for the users
+     * @param UserPasswordEncoderInterface $userPasswordEncoderInterface - autowired password encoder defined for the users
      */
     public function __construct(UserPasswordEncoderInterface $userPasswordEncoderInterface) {
         $this->passwordEncoder = $userPasswordEncoderInterface;
