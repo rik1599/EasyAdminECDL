@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20200922213154 extends AbstractMigration
+final class Version20201031111113 extends AbstractMigration
 {
     public function getDescription() : string
     {
@@ -28,7 +28,7 @@ final class Version20200922213154 extends AbstractMigration
         $this->addSql('CREATE TABLE skill_card (id INT AUTO_INCREMENT NOT NULL, student_id INT NOT NULL, certification_id INT NOT NULL, number VARCHAR(7) NOT NULL, credits INT NOT NULL, expires_at DATETIME DEFAULT NULL, status VARCHAR(32) NOT NULL, UNIQUE INDEX UNIQ_5155046196901F54 (number), INDEX IDX_51550461CB944F1A (student_id), INDEX IDX_51550461CB47068A (certification_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE session (id INT AUTO_INCREMENT NOT NULL, certification_id INT NOT NULL, datetime DATETIME NOT NULL, subscribe_expire_date DATE NOT NULL, status VARCHAR(32) NOT NULL, type VARCHAR(32) NOT NULL, rounds INT NOT NULL, INDEX IDX_D044D5D4CB47068A (certification_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE certification_module (id INT AUTO_INCREMENT NOT NULL, certification_id INT NOT NULL, module_id INT NOT NULL, is_mandatory TINYINT(1) NOT NULL, INDEX IDX_EA0C3F9FCB47068A (certification_id), INDEX IDX_EA0C3F9FAFC2B591 (module_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
-        $this->addSql('CREATE TABLE skill_card_module (id INT AUTO_INCREMENT NOT NULL, skill_card_id INT NOT NULL, module_id INT NOT NULL, is_passed TINYINT(1) NOT NULL, INDEX IDX_C005EC9050390409 (skill_card_id), INDEX IDX_C005EC90AFC2B591 (module_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
+        $this->addSql('CREATE TABLE skill_card_module (id INT AUTO_INCREMENT NOT NULL, skill_card_id INT NOT NULL, module_id INT NOT NULL, status VARCHAR(16) NOT NULL, INDEX IDX_C005EC9050390409 (skill_card_id), INDEX IDX_C005EC90AFC2B591 (module_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE booking (id INT AUTO_INCREMENT NOT NULL, skill_card_id INT NOT NULL, module_id INT NOT NULL, session_id INT NOT NULL, turn INT NOT NULL, status VARCHAR(32) NOT NULL, is_approved TINYINT(1) NOT NULL, INDEX IDX_E00CEDDE50390409 (skill_card_id), INDEX IDX_E00CEDDEAFC2B591 (module_id), INDEX IDX_E00CEDDE613FECDF (session_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('ALTER TABLE student ADD CONSTRAINT FK_B723AF33A76ED395 FOREIGN KEY (user_id) REFERENCES user (id)');
         $this->addSql('ALTER TABLE notice ADD CONSTRAINT FK_480D45C2A76ED395 FOREIGN KEY (user_id) REFERENCES user (id)');
