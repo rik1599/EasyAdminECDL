@@ -5,11 +5,11 @@ namespace App\Form;
 use App\Entity\CertificationModule;
 use App\Entity\SkillCard;
 use App\Entity\SkillCardModule;
+use App\Enum\EnumSkillcardModule;
 use App\Repository\CertificationModuleRepository;
-use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -42,9 +42,8 @@ class SkillCardModuleType extends AbstractType
                 'choice_label' => "module.nome",
                 'choices' => $choices
             ])
-            ->add('isPassed', CheckboxType::class, [
-                'label' => 'Già superato?',
-                'required' => false
+            ->add('status', ChoiceType::class, [
+                'choices' => EnumSkillcardModule::getAll(),
             ])
         ;
     }
