@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Certification;
+use App\Enum\EnumRole;
 use App\Field\DateIntervalField;
 use App\Form\ModuleType;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -30,7 +31,13 @@ class CertificationCrudController extends AbstractCrudController
     public function configureActions(Actions $actions): Actions
     {
         return $actions
-            ->add(Crud::PAGE_INDEX, Action::DETAIL);
+            ->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->setPermissions([
+                Action::NEW => EnumRole::ROLE_ADMIN,
+                Action::EDIT => EnumRole::ROLE_ADMIN,
+                Action::DELETE => EnumRole::ROLE_ADMIN,
+                Action::INDEX => EnumRole::ROLE_ADMIN
+            ]);
     }
     
     public function configureFields(string $pageName): iterable

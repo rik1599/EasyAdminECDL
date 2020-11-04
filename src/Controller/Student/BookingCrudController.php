@@ -23,6 +23,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -87,18 +88,17 @@ class BookingCrudController extends AbstractCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        yield IdField::new('id')->hideOnForm();
-        yield AssociationField::new('skillCard')->hideOnForm();
-        yield AssociationField::new('session')->hideOnForm();
-        yield AssociationField::new('module')
-            ->hideOnForm();
+        yield IdField::new('id');
+        yield TextField::new('skillCard');
+        yield AssociationField::new('session');
+        yield AssociationField::new('module');
         yield IntegerField::new('turn')
-            ->hideOnForm()
             ->formatValue(function ($value, Booking $booking) {
                 $baseTime = DateTimeImmutable::createFromMutable($booking->getSession()->getDatetime());
                 return $baseTime->add(new DateInterval("PT" . $value . "H"))->format('H:i');
             });
-        yield TextField::new('status')->hideOnForm();
+        yield TextField::new('status');
+        yield BooleanField::new('isApproved')->renderAsSwitch(false);
     }
 
     public function booking(AdminContext $adminContext, Request $request)

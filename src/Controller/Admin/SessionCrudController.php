@@ -37,7 +37,8 @@ class SessionCrudController extends AbstractCrudController
 
     public function configureActions(Actions $actions): Actions
     {
-        $cancelSessionAction = Action::new('cancelSession', 'Annulla sessione')
+        $cancelSessionActionName = 'cancelSession';
+        $cancelSessionAction = Action::new($cancelSessionActionName, 'Annulla sessione')
             ->displayIf(function (Session $session) {
                 return $session->getStatus() === EnumSessionStatus::ACTIVATED;
             })
@@ -45,7 +46,11 @@ class SessionCrudController extends AbstractCrudController
         
             return $actions
                 ->add(Crud::PAGE_INDEX, $cancelSessionAction)
-                ->setPermission(Action::EDIT, EnumRole::ROLE_ADMIN)
+                ->setPermissions([
+                    Action::EDIT => EnumRole::ROLE_ADMIN,
+                    Action::NEW => EnumRole::ROLE_ADMIN,
+                    $cancelSessionActionName => EnumRole::ROLE_ADMIN
+                ])
                 ->disable(Action::DELETE);
     }
 
