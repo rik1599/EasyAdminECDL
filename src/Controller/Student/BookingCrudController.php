@@ -9,6 +9,7 @@ use App\Enum\EnumBookingStatus;
 use App\Enum\EnumSkillcardModule;
 use App\Form\BookingType;
 use App\Repository\BookingRepository;
+use App\Service\BookingService;
 use DateInterval;
 use DateTimeImmutable;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
@@ -35,9 +36,13 @@ class BookingCrudController extends AbstractCrudController
     /** @var BookingRepository */
     private $bookingRepository;
 
-    public function __construct(BookingRepository $bookingRepository)
+    /** @var BookingService */
+    private $bookingService;
+
+    public function __construct(BookingRepository $bookingRepository, BookingService $bookingService)
     {
         $this->bookingRepository = $bookingRepository;
+        $this->bookingService = $bookingService;
     }
 
     public static function getEntityFqcn(): string
@@ -114,8 +119,10 @@ class BookingCrudController extends AbstractCrudController
             if ($nBookings >= self::MAX_BOOKINGS_PER_TURN && $isCreating) {
                 $this->addFlash('danger', 'Non è possibile inserire la prenotazione.
                 È stato raggiunto il tetto massimo di iscrizioni per questo turno');
+            } else if ($this->bookingService->bookExam($booking)) {
+                $this->addFlash('success', 'Prenotazione inserita correttamente');
             } else {
-                $this->saveBooking($booking);
+                $this->addFlash('warning', 'Hai finito i crediti della tua skill card, la tua prenotazione dovrà essere approvata da un amministratore');
             }
             return $this->redirect($adminContext->getReferrer());
         }
@@ -128,37 +135,11 @@ class BookingCrudController extends AbstractCrudController
         ]);
     }
 
-    protected function saveBooking(Booking $booking)
-    {
-        $booking->setStatus(EnumBookingStatus::SUBSCRIBED);
-        $booking->getModule()->setStatus(EnumSkillcardModule::SUBSCRIBED);
-        $skillCard = $booking->getSkillCard();
-        $credits = $skillCard->getCredits();
-        if (!is_null($credits) && $credits == 0) {
-            $this->addFlash('warning', 'Hai finito i crediti della tua skill card, la tua prenotazione dovrà essere approvata da un amministratore');
-            $booking->setIsApproved(false);
-        } else {
-            $this->addFlash('success', 'Prenotazione inserita correttamente');
-            $skillCard->setCredits($credits--);
-            $booking->setIsApproved(true);
-        }
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($booking);
-        $this->getDoctrine()->getManager()->flush();
-    }
-
     public function cancelBooking(AdminContext $adminContext)
     {
         /** @var Booking */
         $booking = $adminContext->getEntity()->getInstance();
-        $booking->setStatus(EnumBookingStatus::CANCELED);
-
-        /** @var SkillCard */
-        $skillCard = $booking->getSkillCard();
-        $credits = $skillCard->getCredits();
-        $skillCard->setCredits($credits++);
-
-        $this->getDoctrine()->getManager()->flush();
+        $this->bookingService->cancelBooking($booking);
         return $this->redirect($adminContext->getReferrer());
     }
 }
