@@ -2,7 +2,9 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\Booking;
 use App\Entity\Session;
+use App\Enum\EnumBookingStatus;
 use App\Enum\EnumRole;
 use App\Enum\EnumSessionStatus;
 use App\Enum\EnumSessionType;
@@ -119,7 +121,19 @@ class SessionCrudController extends AbstractCrudController
         /** @var Session */
         $session = $adminContext->getEntity()->getInstance();
         $session->setStatus(EnumSessionStatus::CANCELED);
+
         $this->getDoctrine()->getManager()->flush();
         return $this->redirect($adminContext->getReferrer());
+    }
+
+    /**
+     * Cancel all bookings of a given session and refund to students 1 credit (if consumed)
+     * @param Session $session - the canceled session
+     */
+    private function refundBookings(Session $session)
+    {
+        $sessionBookings = $session->getBookings()->filter(function (Booking $booking) {
+            return $booking->getStatus() === EnumBookingStatus::SUBSCRIBED;
+        });
     }
 }

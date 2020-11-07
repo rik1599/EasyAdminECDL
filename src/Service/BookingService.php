@@ -8,6 +8,10 @@ use App\Enum\EnumBookingStatus;
 use App\Enum\EnumSkillcardModule;
 use Doctrine\ORM\EntityManagerInterface;
 
+/**
+ * Symfony service to manage bookings actions
+ * (book an exam, cancel a booking, approve a booking)
+ */
 class BookingService
 {
 
@@ -18,6 +22,11 @@ class BookingService
         $this->entityManager = $entityManager;
     }
     
+    /**
+     * Approves, subtracts a credits from the booking skillcard (if enough) and save it to db
+     * @param Booking $booking - precompilated booking (for example from a form) to save in db
+     * @return bool - true if the booking is saved and approved (enough credits in skillcard), false if there aren't enough credits in skillcard, but the booking is saved however
+     */
     public function bookExam(Booking $booking)
     {
         $booking->setStatus(EnumBookingStatus::SUBSCRIBED);
@@ -31,7 +40,16 @@ class BookingService
         return $isApproved;
     }
 
+    /**
+     * Update a booking approving it (if there are enough credits in skillcard)
+     * @param Booking $booking
+     * @return bool - true if the booking being approved, else false
+     */
     public function approveBookingByAdmin(Booking $booking) {
+        if ($booking->getIsApproved() == true) {
+            return true;
+        }
+
         $isApproved = $this->approveBooking($booking);
         $this->entityManager->flush();
         return $isApproved;
@@ -53,6 +71,10 @@ class BookingService
         return $isApproved;
     }
 
+    /**
+     * Cancel a booking and refund a credit to skillcard
+     * @param Booking $booking
+     */
     public function cancelBooking(Booking $booking) {
         $booking->setStatus(EnumBookingStatus::CANCELED);
 

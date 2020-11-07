@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\Booking;
 use App\Enum\EnumBookingStatus;
+use App\Service\BookingService;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -16,6 +17,13 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class BookingCrudController extends AbstractCrudController
 {
+    /** @var BookingService */
+    private $bookingService;
+
+    public function __construct(BookingService $bookingService) {
+        $this->bookingService = $bookingService;
+    }
+
     public static function getEntityFqcn(): string
     {
         return Booking::class;
@@ -23,14 +31,14 @@ class BookingCrudController extends AbstractCrudController
 
     public function configureActions(Actions $actions): Actions
     {
-        $confirmAction = Action::new('confirmAction', 'Conferma prenotazione')
+        $approveBookingAction = Action::new('approveBookingAction', 'Conferma prenotazione')
             ->displayIf(function (Booking $booking) {
                 return !$booking->getIsApproved() && $booking->getStatus() === EnumBookingStatus::SUBSCRIBED;
             })
-            ->linkToCrudAction('confirmAction');
+            ->linkToCrudAction('approveBookingAction');
         return $actions
-            ->add(Crud::PAGE_INDEX, $confirmAction)
-            ->add(Crud::PAGE_DETAIL, $confirmAction)
+            ->add(Crud::PAGE_INDEX, $approveBookingAction)
+            ->add(Crud::PAGE_DETAIL, $approveBookingAction)
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->disable(Action::NEW, Action::DELETE, Action::EDIT);
     }
@@ -45,8 +53,17 @@ class BookingCrudController extends AbstractCrudController
         yield IntegerField::new('turn');
     }
 
-    public function confirmAction(AdminContext $adminContext)
+    public function approveBookingAction(AdminContext $adminContext)
     {
+        /** @var Booking */
+        $booking = $adminContext->getEntity()->getInstance();
+
+        if ($this->bookingService->approveBookingByAdmin($booking)) {
+            $this->addFlash('success', 'Prenotazione confermata correttamente');
+        } else {
+            $this->addFlash('danger', 'Impossibile confermare la prenotazione, crediti insufficienti');
+        }
+
         return $this->redirect($adminContext->getReferrer());
     }
 }
