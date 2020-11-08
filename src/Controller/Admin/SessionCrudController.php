@@ -122,6 +122,8 @@ class SessionCrudController extends AbstractCrudController
         $session = $adminContext->getEntity()->getInstance();
         $session->setStatus(EnumSessionStatus::CANCELED);
 
+        $this->refundBookings($session);
+
         $this->getDoctrine()->getManager()->flush();
         return $this->redirect($adminContext->getReferrer());
     }
@@ -135,5 +137,14 @@ class SessionCrudController extends AbstractCrudController
         $sessionBookings = $session->getBookings()->filter(function (Booking $booking) {
             return $booking->getStatus() === EnumBookingStatus::SUBSCRIBED;
         });
+        
+        foreach ($sessionBookings as $booking) {
+            /** @var Booking $booking */
+            $booking->setStatus(EnumBookingStatus::SESSION_CANCELED);
+            if ($booking->getIsApproved()) {
+                $skillCardCredits = $booking->getSkillCard()->getCredits();
+                $booking->getSkillCard()->setCredits($skillCardCredits++);
+            }
+        }
     }
 }
